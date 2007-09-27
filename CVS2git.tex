@@ -1,0 +1,75 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[english]{babel}
+\usepackage[OT1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{mydoc}
+\usepackage[pdftex,colorlinks=true,
+				 pdfstartview=FitV,
+				 linkcolor=blue,
+				 citecolor=blue,
+				 urlcolor=blue,
+		  ]{hyperref}
+
+\begin{document}
+\pagestyle{fancy}
+\fancyfoot{}
+\fancyhead{}
+\renewcommand{\sectionmark}[1]{\markboth{\sf\thesection.\ #1}{}}
+\renewcommand{\subsectionmark}[1]{}
+\fancyhead[R]{{\rmfamily\thepage}}
+
+\title{CVS to git transition guide}
+
+\subtitle{for ACES2 developers}
+\author{{\sf Jonas Jus\'elius}}
+\address{
+{\sf University of Tromsø}\\
+{\sf Department of Chemistry}\\
+{\sf N-9037 University of Tromsø, Norway}
+}
+\years{2007}
+%\abstract{Quick-start guide how to get started with git and how to migrate old 
+%CVS repositories.}
+
+\maketitle
+
+\section{Preliminaries}
+This is not a git manual, nor a proper HOWTO either. There is a lot of decent
+documentation available on the web, and all git commands are very well
+documented, so there is no need to repeat them here. 
+This document explains step-by-step how to move your local changes
+in your CVS repositories to the newly created git repository. It assumes that
+you have a recent version of git installed on your system, and that you have
+familiarised your self with the basic git operations by reading the available
+git documentation at \url{http://git.or.cz}. 
+
+The second part of this guide explains some of the differences between git and
+CVS, which at first sight might be a bit hard to understand. Although git is
+well documented, some of the documentation is somewhat scattered, or seems to
+be written for computer scientists.
+
+If you have not done so yet I
+recommend you start by reading the following two short tutorials:
+\begin{description}
+\item[Git for CVS users]:\\
+\url{http://www.kernel.org/pub/software/scm/git/docs/cvs-migration.html}
+\item[The git tutorial]:\\
+\url{http://www.kernel.org/pub/software/scm/git/docs/tutorial.html}
+\end{description}
+Furthermore, the following documents may be of use:
+\begin{description}
+\item[Everyday git with 20 commands or so]:\\
+\url{http://www.kernel.org/pub/software/scm/git/docs/everyday.html}
+\item[Git user's manual]:\\
+\url{http://www.kernel.org/pub/software/scm/git/docs/user-maunal.html}
+\end{description}
+
+\section{Introduction to git}
+\subsection{Branches in git}
+\subsection{Useful stuff}
+
+\section{Migrating your CVS repository}
+
+\end{document}
+

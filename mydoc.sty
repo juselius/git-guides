@@ -1,0 +1,100 @@
+%% This is linuxdoc.sty, for ``Linux Installation and Getting Started''
+%% Copyright 1993-1994 by Matt Welsh
+%%
+%% Based on linuxdoc.sty by Michael K. Johnson, and latex.tex by 
+%% Leslie Lamport. 
+
+%\typeout{Jonas Documentation Style `foo', version 0.1 <26 Dec 98>}
+
+%%% GLOBAL LAYOUT THINGS
+
+
+%\hoffset 0pt
+%\voffset 0pt
+%\marginparwidth 0.0cm
+%\addtolength{\oddsidemargin}{-1.0cm}
+%\addtolength{\evensidemargin}{-1.0cm}
+%\addtolength{\textwidth}{1.0 cm}
+%\addtolength{\textheight}{1 cm}
+
+%\textwidth 424pt
+%\topmargin -0.5 cm
+%\textheight 646pt  
+
+%\textheight 8.5 in
+%\advance\headsep 2 ex
+%\advance\textheight -2 ex
+%\renewcommand{\baselinestretch}{1.14}
+%\addtolength{\parskip}{1.2 ex}
+
+%% Titlepage macros:
+
+% To use the maketitle{} macro, you need to first do the following:
+%  \title{Title of your masterpiece}
+%  \years{1992, 1993} %or whatever year(s) hold for the copyright
+%  \author{Your N. Here\\Other Name Here, if any}
+%  \abstract{This should be an abstract-like thing for the front of
+%   your masterpiece.  It will be set in \sf font, so be aware of
+%   that.  In it you may include any information that ought to be on
+%   the title page.  It is, in a sense, a mini-introduction.  For
+%   drafts, I include instructions here for my proofreaders, but it
+%   will be a real abstract when publically available versions of my
+%   docs come out.}
+
+\gdef\@title{}
+\gdef\title#1{\gdef\@title{#1}}
+\gdef\@subtitle{}
+\gdef\subtitle#1{\gdef\@subtitle{#1}}
+\gdef\@years{}
+\gdef\years#1{\gdef\@years{#1}}
+\gdef\@author{}
+\gdef\author#1{\gdef\@author{#1}}
+\gdef\@address{}
+\gdef\address#1{\gdef\@address{#1}}
+\gdef\@abstract{}
+\gdef\abstract#1{\gdef\@abstract{#1}}
+
+\def\point#1#2#3{\setbox0=\hbox to 0pt{\kern#1truecm%
+\raise#2truecm\hbox{$#3$}\hss}\ht0=0pt\dp0=0pt\box0}
+
+\def\maketitle{\begin{titlepage}%
+%\point{-4.0}{-23.0}{\includegraphics[scale=13]{MLBG.eps}}
+\let\footnotesize\small
+\let\footnoterule\relax
+\setcounter{page}{1}%
+\null
+\vskip 3.0 in
+\noindent
+{\huge\sf \@title}\\[-2.0mm]
+%\vskip 0.5mm
+\noindent
+\rule{\textwidth}{0.5mm}\\
+\mbox{} \hfill \begin{tabular}[t]{r} {\large\bf\sf\@subtitle}\\
+\end{tabular}\vspace{5.0cm} 
+\begin{center}
+{\Large\bf\@author} \\[2mm]
+\@address \\
+\end{center}
+%\@years
+
+%\vspace{5cm}\noindent
+\vfill\noindent
+{\it \@abstract}
+\end{titlepage}%
+\setcounter{footnote}{0}%
+\gdef\@author{}\gdef\@title{}\gdef\@years{}\gdef\@abstract{}
+\let\maketitle\relax}
+
+\renewcommand\tableofcontents{%
+	\if@twocolumn
+	  \@restonecoltrue\onecolumn
+	\else
+	  \@restonecolfalse
+	\fi
+	\chapter*{\contentsname
+		\@mkboth{%
+		   {\sf\contentsname}}{}}%
+	\@starttoc{toc}%
+	\if@restonecol\twocolumn\fi
+}
+%
