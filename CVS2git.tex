@@ -65,11 +65,53 @@ Furthermore, the following documents may be of use:
 \url{http://www.kernel.org/pub/software/scm/git/docs/user-maunal.html}
 \end{description}
 
+\section{Migrating your CVS repository}
+\subsection{Before you start}
+Before doing anything else, I suggest that you setup some default
+configuration variables for git. Git uses a number of config files, system
+wide, per user and per repository (see the git-config man page for more info).
+As a minimum you should set the following options:
+\begin{verbatim}
+$ git-config --global user.name "Your Name"
+$ git-config --global user.email "my@email.com"
+\end{verbatim}
+These options are written in ~/.gitconfig, and are used by git to ensure that
+your commit messages are sensible, since user names and mail addresses are not
+necessarily set properly on all machines. In addition you might want to enable
+the following options as well:
+\begin{verbatim}
+$ git-config --global color.branch auto
+$ git-config --global color.status auto
+$ git-config --global color.diff false
+\end{verbatim}
+In order to save space you can also enable compression
+\begin{verbatim}
+$ git-config --global core.compression 1
+$ git-config --global core.loosecompression 1
+\end{verbatim}
+If you want to use some external (graphical) merge tool to resolve conflicts:
+\begin{verbatim}
+$ git-config --global merge.tool meld
+\end{verbatim}
+Meld is a fantastic merge tool, and I strongly suggest you have a look at it.
+Other valid possibilities are kdiff3 and xxdiff (amongst others).
+
+\subsection{Updating your CVS repository}
+Since the old CVS server is no longer accepting new modifications, you need to
+move all of your local modifications under git and then commit them. To do
+this you need to follow these directions carefully. Before you start I
+strongly suggest that you backup your working copy!
+\begin{enumerate}
+\item The first thing you must do is to synchronise your working copy with the
+CVS server, in order to make sure that your files are in the right state.
+Files with local modifications will not be overwritten or updated. 
+\end{enumerate}
+
 \section{Introduction to git}
+
 \subsection{Branches in git}
 \subsection{Useful stuff}
 
-\section{Migrating your CVS repository}
 
 \end{document}
 
