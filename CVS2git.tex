@@ -101,12 +101,100 @@ Since the old CVS server is no longer accepting new modifications, you need to
 move all of your local modifications under git and then commit them. To do
 this you need to follow these directions carefully. Before you start I
 strongly suggest that you backup your working copy!
-\begin{enumerate}
-\item The first thing you must do is to synchronise your working copy with the
-CVS server, in order to make sure that your files are in the right state.
-Files with local modifications will not be overwritten or updated. 
-\end{enumerate}
+\begin{description}
+\item[Update] The first thing you must do is to synchronise your working
+copy with the CVS server by running
+\begin{verbatim}
+$ cvs update
+\end{verbatim}
+This makes sure that your files are in the right state. 
+Files with local modifications will not be overwritten nor
+updated. If you have modified files that meanwhile have been modified on the
+master you will probably have a number of conflicts. You need to resolve these
+conflicts before continuing. Edit the files with conflicts and pick the
+correct pieces of code between the markers.
+\item[Diff] The next step is to create a patch file to migrate all your
+changes from CVS to your new git repository. 
+Now that all files, except your locally modified files, are in the same state
+as on the master you can run
+\begin{verbatim}
+$ cvs diff -u -N >migration.diff
+\end{verbatim}
+This file contains all the differences between the master and your working
+copy.
+\item[Clone] Now you are in a position to clone the new git master repository!
+Change your working directory to where you want to create your new repository
+and run
+\begin{verbatim}
+$ git clone user@feynman.chemie.uni-mainz.de:/mnt/software/git/aces2.git
+$ cd aces2 
+\end{verbatim}
+Optionally you can also specify the name of the new repository.
+\item[Branch and checkout] 
+Before you do anything else you need to create a new (local) branch which is
+in the same state as the old master CVS, and switch to the new branch. The new
+branch will be called migration (or whatever) and must be created from the tag
+CVS\_migration\_HEAD:
+\begin{verbatim}
+$ git branch migration CVS_migration_HEAD
+$ git checkout migration
+\end{verbatim}
+\item[Patch] You are now ready to apply the patch you created and bring your
+own local modifications into your git repository
+\begin{verbatim}
+$ patch -p0 < /path/to/old/aces2/migration.diff
+\end{verbatim}
+The patch should apply without a hitch if you have done everything correctly.
+You can now run 
+\begin{verbatim}
+$ git status
+\end{verbatim}
+to show the status of your repository (i.e. modified files, deleted files,
+files that needs to be added, etc.).
+\end{description}
 
+Congratulations! You are now in the same situation as before the switch!
+
+Before continuing you probably want to read the rest of this document, and in
+particular the section on commits and patch sets. Before you add files to
+commit you should probably think closely about how changes are logically
+related and how they could be grouped into sets, instead of committing
+everything as one big blob. It's better to have many, many small commits than
+a few big ones, since this helps picking out particular patch sets and
+applying them to other branches (this is known as cherry picking).
+\begin{description}
+\item[Commit] The following step in the migration process is to commit all
+your changes in your local repository. Don't worry, you will not mess up
+anything on the master, or even make your changes public yet. This is a
+personal commit so far. There is a convenient tool to pick, group and commit 
+your changes
+\begin{verbatim}
+$ git citool
+\end{verbatim}
+If you rather do everything by hand you can either do a
+\begin{verbatim}
+$ git commit -a
+\end{verbatim}
+to do what you probably should not, i.e. commit everything as one huge commit.
+Then run 
+\begin{verbatim}
+$ git status
+\end{verbatim}
+to check that you have not missed anything. If you have untracked files you
+need to add them, and commit them (you can also do this before you commit the
+first time)
+\begin{verbatim}
+$ git add file(s)...
+$ git commit
+\end{verbatim}
+
+If you want to group your changes into logical sets, you should repeatedly run
+\begin{verbatim}
+$ git add file(s) you want to commit
+$ git commit
+\end{verbatim}
+until all changes have been committed.
+\end{description}
 \section{Introduction to git}
 
 \subsection{Branches in git}
