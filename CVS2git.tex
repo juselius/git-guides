@@ -19,9 +19,9 @@
 \renewcommand{\subsectionmark}[1]{}
 \fancyhead[R]{{\rmfamily\thepage}}
 
-\title{CVS to git transition guide}
+\title{CVS to git Transition Guide}
 
-\subtitle{for ACES2 developers}
+\subtitle{Guide for Cold Turkey Quitters}
 \author{{\sf Jonas Jus\'elius}}
 \address{
 {\sf University of Tromsø}\\
@@ -44,10 +44,10 @@ you have a recent version of git installed on your system, and that you have
 familiarised your self with the basic git operations by reading the available
 git documentation at \url{http://git.or.cz}. 
 
-The second part of this guide explains some of the differences between git and
-CVS, which at first sight might be a bit hard to understand. Although git is
-well documented, some of the documentation is somewhat scattered, or seems to
-be written for computer scientists.
+%The second part of this guide explains some of the differences between git and
+%CVS, which at first sight might be a bit hard to understand. Although git is
+%well documented, some of the documentation is somewhat scattered, or seems to
+%be written for computer scientists.
 
 If you have not done so yet I
 recommend you start by reading the following two short tutorials:
@@ -122,6 +122,10 @@ $ cvs diff -u -N >migration.diff
 \end{verbatim}
 This file contains all the differences between the master and your working
 copy.
+\end{description}
+
+\subsection{Setting up the git repository}
+\begin{description}
 \item[Clone] Now you are in a position to clone the new git master repository!
 Change your working directory to where you want to create your new repository
 and run
@@ -153,15 +157,18 @@ to show the status of your repository (i.e. modified files, deleted files,
 files that needs to be added, etc.).
 \end{description}
 
-Congratulations! You are now in the same situation as before the switch!
-
-Before continuing you probably want to read the rest of this document, and in
-particular the section on commits and patch sets. Before you add files to
+Congratulations! Your repository is now in the same state as before the 
+switch!
+%Before continuing you probably want to read the rest of this document, and in
+%particular the section on commits and patch sets. 
+\subsection{Committing your changes}
+Before you add changes (and files) to
 commit you should probably think closely about how changes are logically
 related and how they could be grouped into sets, instead of committing
 everything as one big blob. It's better to have many, many small commits than
 a few big ones, since this helps picking out particular patch sets and
 applying them to other branches (this is known as cherry picking).
+
 \begin{description}
 \item[Commit] The following step in the migration process is to commit all
 your changes in your local repository. Don't worry, you will not mess up
@@ -171,35 +178,194 @@ your changes
 \begin{verbatim}
 $ git citool
 \end{verbatim}
-If you rather do everything by hand you can either do a
+If you rather do everything by hand, repeatedly run
+\begin{verbatim}
+$ git add file(s) 
+$ git commit
+\end{verbatim}
+to group changes into sets, until all changes have been committed. 
+This is also how you add untracked files to git.
+
+Finally run 
+\begin{verbatim}
+$ git status
+\end{verbatim}
+to check that you have not missed anything. 
+
+You can also just run
 \begin{verbatim}
 $ git commit -a
 \end{verbatim}
 to do what you probably should not, i.e. commit everything as one huge commit.
-Then run 
-\begin{verbatim}
-$ git status
-\end{verbatim}
-to check that you have not missed anything. If you have untracked files you
-need to add them, and commit them (you can also do this before you commit the
-first time)
-\begin{verbatim}
-$ git add file(s)...
-$ git commit
-\end{verbatim}
-
-If you want to group your changes into logical sets, you should repeatedly run
-\begin{verbatim}
-$ git add file(s) you want to commit
-$ git commit
-\end{verbatim}
-until all changes have been committed.
 \end{description}
-\section{Introduction to git}
 
-\subsection{Branches in git}
-\subsection{Useful stuff}
+\subsection{Working with the master server}
+Now that all your changes have been safely committed it's time to push them to
+the master server so that others can see your changes, and for backup. Don't
+worry, things have been set up such that you can't mess up the master
+repository. 
+The master repository has been set up with a number of default branches. 
+In the (hopefully near) future a testing branch will be set up, as a staging area for
+code that you want to have included in the main master branch. The code in
+this branch will be checked out nightly and run through the test suite. If the
+tests run cleanly, the code will be considered eligible for inclusion in the
+master branch.
+In addition every developer has the possibility to cerate their own branch on
+the master (note that it's not created by default).  You can only commit
+branches and tags which have names that start with your user id. 
 
+\begin{description}
+\item[Creating a remote branch] To create a new branch on a remote server, git
+requires a very explicit syntax. After you have created the branch, you can
+use the same syntax as when operating on local branches. To create a remote 
+branch and push your changes in the migration branch to it, do
+\begin{verbatim}
+$ git push origin migration:refs/heads/<uid>
+\end{verbatim}
+where {\tt <uid>} is your login on the server.
+
+\item[Fetching changes] To follow what others are doing and incorporating
+their latest changes you need to regularly fetch their changes. git is very
+flexible in the ways you can do things, so consult the man pages for more
+info. To download all changes from the master run
+\begin{verbatim}
+$ git fetch origin 
+\end{verbatim}
+This downloads all remote branches and stores them in your remote tracking
+branches (use {\tt git-branch -r} to see them). {\tt git-fetch} does not merge any changes
+into your working branches. After the git-fetch you can examine the changes to
+the remote branches using e.g. {\tt gitk --all} or 
+{\tt git [log/diff] origin/master}.
+To update your current branch with e.g. the remote master branch do
+\begin{verbatim}
+$ git merge origin/master
+\end{verbatim}
+
+\item[Pulling changes] There is a much easier way of updating your branches
+from the master server:
+\begin{verbatim}
+$ git pull origin master
+\end{verbatim}
+This command automatically fetches the master branch from the server and
+merges it with your current branch. This is more or less the git equivalent of
+{\tt cvs update}. Note that this only fetches the specified branch from the
+server. If you want all changes on all branches use the fetch command above.
+
+\item[Push] To publish changes to a branch so that others can see them and
+alternatively merge them with their branches you must push them to the main
+server. This is in a sense the git equivalent of a {\tt cvs commit}. 
+To upload a
+branch and merge it with your personal branch on the server, do
+\begin{verbatim}
+$ git push origin somebranch:<uid>
+\end{verbatim}
+For more details see the git-push man page. Note that for a push to work, it
+must result in a so called fast-forward-merge. Fast-forward means that the
+files you want to merge on another branch, must have the files in the other
+branch as parents. Simply stated, the files on the other branch have not
+changed since the last pull.  If the push fails because it's not fast-forward,
+you must first do a {\tt git pull origin branch} and resolve any conflicts 
+before
+(re)doing the push.
+
+\item[Tagging] To create a tag, simply run {\tt git-tag <tagname>}. To push
+your tags to the main server, do
+\begin{verbatim}
+$ git push --tags origin 
+\end{verbatim}
+This will push all your tags to the main server. Note that you are not allowed
+by the server to create tags unless they are prefixed with your user id, e.g. 
+{\tt <uid>/mytag}. If you don't want to push all tags, you can use the special
+syntax
+\begin{verbatim}
+$ git push origin tag <uid>/<mytag>
+\end{verbatim}
+To delete a tag on the master you need to explicitly push an empty tag
+\begin{verbatim}
+$ git push origin :refs/tags/<uid>/<mytag>
+\end{verbatim}
+
+\item[Deleting a remote branch] If you for some reason want to delete a branch
+on the remote server, just push an empty branch to the remote branch:
+\begin{verbatim}
+$ git push origin :<branch>
+\end{verbatim}
+\end{description}
+
+If you want to have more
+flexibility, more branches and tags (on the server) and more freedom
+generally, you can also set up your own personal repository on the master. git
+makes it quite easy to work with multiple remote repositories in one go. 
+
+To set up your own sub-master repository follow these steps:
+\begin{verbatim}
+$ ssh feynman.chemie.uni-mainz.de
+$ cd /mnt/software/git
+$ mkdir $USER
+$ git clone -s -l --bare aces2.git $USER/aces2.git
+$ cd $USER/aces2.git 
+$ git-branch -a 
+# remove any branches and tags you do not care about
+$ git-branch -D <branch branch...>
+$ git-tag -d <tag tag...>
+\end{verbatim}
+The -s and -l options to {\tt git-clone} will cause git to set up the
+repository to use the master's object database as much as possible, so that it
+will take up very little space. 
+
+Now on your local machine, cd to your development repository and register the 
+new remote:
+\begin{verbatim}
+$ git-remote add <name> feynman:/mnt/software/git/<uid>/aces2.git
+\end{verbatim}
+Now when you fetch, pull and push use your new remote-tag {\tt <name>} instead 
+of {\tt origin} to the corresponding command. The new development cycle will
+typically be something like
+\begin{verbatim}
+$ git-pull origin master
+# do some work
+$ git push myremote mybranch:mybranch
+# or to push all branches automatically
+$ git push --all myremote 
+\end{verbatim}
+
+Since branches come and go, both in {\tt origin} and in your own remote(s)
+it's a good idea to clean up the remotes once in a while by doing a
+\begin{verbatim}
+$ git-remote prune origin
+$ git-remote prune <myremote>
+\end{verbatim}
+
+\section{Useful git commands}
+Here is a short list of useful git commands to familiarise yourself with when
+you feel that you have the basics under control. {\tt man git-<command>} will
+give you all available information on a particular command.
+\begin{description}
+\item{\tt gitk} Graphical interface for browsing repositories.
+\item{\tt qgit} Graphical interface for browsing repositories. Better and more
+advance than gitk, but probably not installed on your system by default.
+\item{\tt git-diff} View differences between your working copy and a committed
+revision (and more).
+\item{\tt git-gc} By default git will store all objects in a very primitive
+and storage inefficient way. This command packs, compresses and prunes
+unreachable objects in the object database. {\bf Should be used regularly}.
+\item{\tt git-stash} If you need to checkout a new branch, but don't want to
+commit your changes, stash allows you to temporarily save your changes. Only
+in git 1.5.3 and newer.
+\item{\tt git-cherry-pick} Instead of merging two complete branches, only pick the
+commits you really want from a branch.
+\item{\tt git-bisect} Find a commit which introduced some nasty bug. Very
+helpful.
+\item{\tt git-log} View the commit history on a branch
+\item{\tt git-archive} Create a tar or zip archive from a branch.
+\item{\tt git-mv} Rename files in the repository.
+\item{\tt git-rm} Delete files from the repository.
+\item{\tt git-annotate} Show who changed what and when in files.
+\item{\tt git-format-patch} Generate an patch file of a commit, suitable for
+sending by e-mail
+\item{\tt git-am} Apply a patch from a mailbox
+
+\end{description}
 
 \end{document}
 
