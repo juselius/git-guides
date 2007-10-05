@@ -38,7 +38,14 @@ Corrections and improvements are most welcome via e-mail using the
 \maketitle
 
 \section{Preliminaries}
-This is not a git manual, nor a proper HOWTO either. There is a lot of decent
+This guide attempts to document one way of migrating both repositories and 
+users from  CVS to git. 
+I'm sure there are many other equally good, or better, ways of doing 
+this. I have called my scheme the Cold Turkey scheme, since it involves
+freezing CVS in one go, and moving to git without attempting any kind of soft
+transition period operating both CVS and git in parallel. 
+
+This is not a git manual. There is a lot of decent
 documentation available on the web, and all git commands are very well
 documented, so there is no need to repeat them here. 
 This document explains step-by-step how to move your local changes
@@ -47,12 +54,23 @@ you have a recent version of git installed on your system, and that you have
 familiarised your self with the basic git operations by reading the available
 git documentation at \url{http://git.or.cz}. 
 
-%The second part of this guide explains some of the differences between git and
-%CVS, which at first sight might be a bit hard to understand. Although git is
-%well documented, some of the documentation is somewhat scattered, or seems to
-%be written for computer scientists.
+The first part of this guide is intended for repository administrators, and
+documents step-by-step how to freeze the CVS archive and convert it to a git
+archive. 
 
-If you have not done so yet I
+The second part is intended for the individual developer, documenting how to
+set up git for personal use, and how to safely migrate all uncommitted changes
+from CVS to git.
+
+The third part of this guide discusses some good practices and aspects of 
+using git on a daily basis.
+It also tries to explains some of the differences between git and
+CVS, which at first sight might be a bit hard to understand. Although git is
+well documented, some of the documentation is somewhat scattered, or seems to
+be written for computer scientists.
+
+\subsection{Recommended reading}
+If you have not done so yet, I
 recommend you start by reading the following two short tutorials:
 \begin{description}
 \item[Git for CVS users]:\\
@@ -68,7 +86,32 @@ Furthermore, the following documents may be of use:
 \url{http://www.kernel.org/pub/software/scm/git/docs/user-maunal.html}
 \end{description}
 
-\section{Migrating your CVS repository}
+\subsection{About this document}
+This guide was written as part of moving the ACES2 (\url{http://www.aces2.de})
+program package from CVS to git. As such it reflects the 
+practical choices made for this particular environment. 
+
+Finally, I'm sure there are errors and/or semi correct statements in this
+document since I'm not a true git expert (yet). All suggestions and
+corrections are welcome!
+
+\subsection{Conventions}
+I have used the following conventions in this document: Commands are written 
+in {\tt typewriter} and anything the user should replace with his/her own 
+options have been enclosed in brackets, e.g. {\tt <mybranch>}.  
+
+ACES2 developers should substitute the following values for these variables
+\begin{description}
+  \item{\tt <myserver>}: {\tt [uid@]feynman.chemie.uni-mainz.de}
+  \item{\tt /path/to/repository.git}: {\tt /mnt/software/git/aces2.git}
+  \item{\tt /path/to/my/repository.git}: {\tt /mnt/software/git/<uid>/aces2.git}
+  \item{\tt <myuid>}: Your user id on feynman
+\end{description}
+
+\section{Converting CVS to git}
+
+
+\section{Migrating your local CVS repository}
 \subsection{Before you start}
 Before doing anything else, I suggest that you setup some default
 configuration variables for git. Git uses a number of config files, system
@@ -162,8 +205,7 @@ files that needs to be added, etc.).
 
 Congratulations! Your repository is now in the same state as before the 
 switch!
-%Before continuing you probably want to read the rest of this document, and in
-%particular the section on commits and patch sets. 
+
 \subsection{Committing your changes}
 Before you add changes (and files) to
 commit you should probably think closely about how changes are logically
@@ -338,6 +380,13 @@ it's a good idea to clean up the remotes once in a while by doing a
 $ git-remote prune origin
 $ git-remote prune <myremote>
 \end{verbatim}
+
+\section{Working with git}
+o gitweb
+o diff
+o status
+o branches and master -> why push
+o how to track masters master
 
 \section{Useful git commands}
 Here is a short list of useful git commands to familiarise yourself with when
