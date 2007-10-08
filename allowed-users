@@ -1,0 +1,7 @@
+# matching order is important, if a match for a branch/tag pattern is found
+# but the user is not matched no more patterns are tried.
+refs/heads/$USER $USER
+refs/tags/$USER/.* $USER
+
+refs/heads/* jonas
+refs/tags/.* jonas
