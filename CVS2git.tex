@@ -21,7 +21,7 @@
 
 \title{CVS to git Transition Guide}
 
-\subtitle{Guide for Cold Turkey Quitters}
+\subtitle{for Cold Turkey Quitters}
 \author{{\sf Jonas Jus\'elius}}
 \address{
 {\tt <jonas.juselius@chem.uit.no>}\\
@@ -30,8 +30,7 @@
 {\sf N-9037 University of Tromsø, Norway}
 }
 \years{2007}
-\abstract{Rev.1:\\{\tt git clone
-feynman.chemie.uni-mainz.de/mnt/software/git/juselius/CVS2git.git}\\
+\abstract{Rev.1:\\{\tt git clone http://git.jonas.iki.fi/CVS2git.git}\\
 Corrections and improvements are most welcome via e-mail using the
 {\tt git-format-patch} facility.}
 
@@ -62,12 +61,12 @@ The second part is intended for the individual developer, documenting how to
 set up git for personal use, and how to safely migrate all uncommitted changes
 from CVS to git.
 
-The third part of this guide discusses some good practices and aspects of 
-using git on a daily basis.
-It also tries to explains some of the differences between git and
-CVS, which at first sight might be a bit hard to understand. Although git is
-well documented, some of the documentation is somewhat scattered, or seems to
-be written for computer scientists.
+%The third part of this guide discusses some good practices and aspects of 
+%using git on a daily basis.
+%It also tries to explains some of the differences between git and
+%CVS, which at first sight might be a bit hard to understand. Although git is
+%well documented, some of the documentation is somewhat scattered, or seems to
+%be written for computer scientists.
 
 \subsection{Recommended reading}
 If you have not done so yet, I
@@ -104,14 +103,156 @@ ACES2 developers should substitute the following values for these variables
 \begin{description}
   \item{\tt <myserver>}: {\tt [uid@]feynman.chemie.uni-mainz.de}
   \item{\tt /path/to/repository.git}: {\tt /mnt/software/git/aces2.git}
-  \item{\tt /path/to/my/repository.git}: {\tt /mnt/software/git/<uid>/aces2.git}
+  \item{\tt /path/to/my/repository.git}: 
+	{\tt /mnt/software/git/<myuid>/aces2.git}
   \item{\tt <myuid>}: Your user id on feynman
 \end{description}
 
-\section{Converting CVS to git}
+\section{Converting your CVS modules to git}
+The general scheme used here for setting up the new git repository is based
+in part on having a central master repository, CVS style, and in
+part on providing centralised git hosting for the developers. The idea is to
+provide the developers with as much comfort and fexibility as the like. 
 
+The central master server is set up with a master branch, which is supposed to
+contain the latest, greatest, bleeding edge {\em working} development version
+of the code. This is the branch from which the developers should pull
+regularly, and only the repository maintainers have right to push to this
+branch. There will also be an experimental branch to which people
+can push code they want others to test. Furthermore there will be a testing
+branch which acts as a staging area for code to be included in the master
+branch. It's simple to have the code in the testing branch 
+pulled once per night and run through a test suite. If all tests pass,
+the repository maintainers can merge with the master branch. 
+
+In addition to these standard branches, every user has the right to create and
+update their own branch on the master server. One ``official'' branch per
+developer is probably enough for most users. This simple setup allows users to
+regularly fetch all remote branches and communicate code sideways if they need
+to. If one branch is not enough, or if a developer has special requirements,
+each developer is allowed to have his/hers own repository on the server. This
+gives maximum flexibility to the users without losing too much transparency.
+The git web interface shows all repositories in a directory tree, so that
+everyone can follow the development cycle in all repositories.
+
+\subsection{Overview}
+To implement the Cold Turkey (tm) change to git, the following steps must be
+taken
+\begin{enumerate}
+  \item Decide where the new git repositories should reside
+  \item Create a UNIX group for the developers, one per project if necessary
+  \item Make the relevant CVS modules read-only 
+  \item Convert the CVS repositories to git
+  \item Set permissions	on files and directories
+  \item Set up the 'update' hook to enforce access restrictions
+  \item Lay back and enjoy a good days work	
+\end{enumerate}
+
+\subsection{Staging for the switch}
+Decide where you want the new repositories to reside, create the necessary
+UNIX groups and set the permissions. Now is also a good time to fix
+permissions on files. Source files should have {\tt chmod 644}, directories
+and scripts should probably be {\tt chmod 755}.
+\begin{verbatim}
+$ mkdir /path/to/git
+$ chgrp gits /path/to/git
+$ chmod 775 /path/to/git
+$ chmod +s /path/to/git
+$ chmod +t /path/to/git
+\end{verbatim}
+
+Then change to your CVSROOT and make the module(s) read-only. Make sure that
+the lock and history files remain in writable locations. These are configured
+in \$CVSROOT/CVSROOT/config.
+\begin{verbatim}
+$ cd $CVSROOT
+$ chmod -R ugo-w myproj
+\end{verbatim}
+Now CVS commits are disabled and the repository frozen.
+
+\subsection{Converting the repository}
+Converting a CVS repository with all branches, tags and the whole history is
+very easy using {\tt git-cvsimport}. 
+Make sure you have a very recent version of git and cvsps installed, to avoid
+unnecessary problems.  
+\begin{verbatim}
+$ cd /path/to/git
+$ git-cvsimport -k -i -d /path/to/CVSROOT -C myproj myproj
+\end{verbatim}
+To create a bare, shared repository we need to rename the git directory, fix
+the permissions and edit the git config file
+\begin{verbatim}
+$ mv myproj/.git myproj.git
+$ rmdir myproj
+$ chgrp -R gitusers myproj.git
+$ chmod -R ug+w myproj.git
+$ chmod +s myproj.git
+# the hooks/ and info/ dirs are special since the control repository access
+$ cd myproj.git; chgrp -R gitadmin hooks info config description
+$ find -type d -exec chmod +s {} \;
+\end{verbatim}
+Then edit the config file:
+\begin{verbatim}
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = true
+	sharedrepository = 1
+[receive]
+	denyNonFastforwards = true
+\end{verbatim}
+Finally edit the description file, adding a one line comment comment
+describing your project for gitweb.
+
+\subsection{Access control}
+To set up per user or group access restrictions, copy the
+\texttt{update}\footnote{Distributed together with the source distribution of
+this document.}
+script to the hooks directory, fix the permissions and make sure it's
+executable. Then copy the \texttt{allowed-users} and \texttt{allowed-groups}
+files to the info directory. Fix the permissions and group ownership of these
+files and edit to your liking. By default they give every developer the right
+to have one personal branch and any number of personal tags at the master.
+
+\subsection{Administrative details} 
+Git has two ways of storing objects in it's database, either as separate
+files or in a packed format storing only differences between files. The packed
+format is for many purposes more efficient than the default storage mode. It's
+therefore a good idea to set up a cron job to traverse all git repositories on
+the master server and run \texttt{git-gc} once per night to pack and clean the
+repositories. Obviously the cron job must be set up for a user which has
+sufficient permissions in the repository tree. Edit and copy the git-optimize.sh
+script distributed with this document to your git repository root directory
+and make sure it's executable. Then set up the cron job to pack the
+repositories
+\begin{verbatim}
+$ crontab -e
+
+1 1 * * * cd /path/to/git; find -name "*.git" -type d -exec \
+/path/to/git/git-optimize.sh {} \;
+1 3 1 * * cd /path/to/git; find -name "*.git" -type d -exec \
+/path/to/git/git-optimize.sh {} \;
+\end{verbatim}
+
+As a last point, it's a good idea to make sure that all users have a
+\texttt{umask} of at least 027 to make sure that the files and directories are
+accessible by all other developers.
+
+\subsection{The web interface}
+Git comes with a very nice and easy to set web interface. Visit 
+\url{http://repo.or.cz/w/git.git/} to see it action. I will not discuss how to
+set up your web server, since there is ample information available on the web.
+To install the web interface copy the gitweb.cgi script to a suitable
+location (e.g. /usr/lib/cgi-bin on some systems) and edit the config file to
+point to the right repository tree. The cgi-script will automatically pick up
+all git projects under this tree. Please note that enabling the gitweb
+interface also enables people to clone your repositories over http. This might
+or might not be what you want, so it might be a good idea to set up access
+restrictions on the web server so that only people you want can connect and
+browse and clone your code. Your call.
 
 \section{Migrating your local CVS repository}
+
 \subsection{Before you start}
 Before doing anything else, I suggest that you setup some default
 configuration variables for git. Git uses a number of config files, system
@@ -176,7 +317,7 @@ copy.
 Change your working directory to where you want to create your new repository
 and run
 \begin{verbatim}
-$ git clone user@feynman.chemie.uni-mainz.de:/mnt/software/git/aces2.git
+$ git clone <myserver>:/path/to/repos/myrepo.git
 $ cd aces2 
 \end{verbatim}
 Optionally you can also specify the name of the new repository.
@@ -192,7 +333,7 @@ $ git checkout migration
 \item[Patch] You are now ready to apply the patch you created and bring your
 own local modifications into your git repository
 \begin{verbatim}
-$ patch -p0 < /path/to/old/aces2/migration.diff
+$ patch -p0 < /path/to/myproj/migration.diff
 \end{verbatim}
 The patch should apply without a hitch if you have done everything correctly.
 You can now run 
@@ -265,9 +406,9 @@ requires a very explicit syntax. After you have created the branch, you can
 use the same syntax as when operating on local branches. To create a remote 
 branch and push your changes in the migration branch to it, do
 \begin{verbatim}
-$ git push origin migration:refs/heads/<uid>
+$ git push origin migration:refs/heads/<muid>
 \end{verbatim}
-where {\tt <uid>} is your login on the server.
+where {\tt <myuid>} is your login on the server.
 
 \item[Fetching changes] To follow what others are doing and incorporating
 their latest changes you need to regularly fetch their changes. git is very
@@ -302,7 +443,7 @@ server. This is in a sense the git equivalent of a {\tt cvs commit}.
 To upload a
 branch and merge it with your personal branch on the server, do
 \begin{verbatim}
-$ git push origin somebranch:<uid>
+$ git push origin somebranch:<myuid>
 \end{verbatim}
 For more details see the git-push man page. Note that for a push to work, it
 must result in a so called fast-forward-merge. Fast-forward means that the
@@ -320,14 +461,14 @@ $ git push --tags origin
 \end{verbatim}
 This will push all your tags to the main server. Note that you are not allowed
 by the server to create tags unless they are prefixed with your user id, e.g. 
-{\tt <uid>/mytag}. If you don't want to push all tags, you can use the special
+{\tt <myuid>/mytag}. If you don't want to push all tags, you can use the special
 syntax
 \begin{verbatim}
-$ git push origin tag <uid>/<mytag>
+$ git push origin tag <myuid>/<mytag>
 \end{verbatim}
 To delete a tag on the master you need to explicitly push an empty tag
 \begin{verbatim}
-$ git push origin :refs/tags/<uid>/<mytag>
+$ git push origin :refs/tags/<myuid>/<mytag>
 \end{verbatim}
 
 \item[Deleting a remote branch] If you for some reason want to delete a branch
@@ -344,15 +485,17 @@ makes it quite easy to work with multiple remote repositories in one go.
 
 To set up your own sub-master repository follow these steps:
 \begin{verbatim}
-$ ssh feynman.chemie.uni-mainz.de
-$ cd /mnt/software/git
+$ ssh <myserver>
+$ cd /path/to/repos
 $ mkdir $USER
-$ git clone -s -l --bare aces2.git $USER/aces2.git
-$ cd $USER/aces2.git 
+$ git clone -s -l --bare proj.git $USER/proj.git
+$ cd $USER/proj.git 
 $ git-branch -a 
 # remove any branches and tags you do not care about
 $ git-branch -D <branch branch...>
 $ git-tag -d <tag tag...>
+# edit description (for gitweb) to your liking 
+$ vi description
 \end{verbatim}
 The -s and -l options to {\tt git-clone} will cause git to set up the
 repository to use the master's object database as much as possible, so that it
@@ -361,7 +504,7 @@ will take up very little space.
 Now on your local machine, cd to your development repository and register the 
 new remote:
 \begin{verbatim}
-$ git-remote add <name> feynman:/mnt/software/git/<uid>/aces2.git
+$ git-remote add <name> <myserver>:/path/to/repos/<myuid>/proj.git
 \end{verbatim}
 Now when you fetch, pull and push use your new remote-tag {\tt <name>} instead 
 of {\tt origin} to the corresponding command. The new development cycle will
@@ -381,12 +524,13 @@ $ git-remote prune origin
 $ git-remote prune <myremote>
 \end{verbatim}
 
-\section{Working with git}
-o gitweb
-o diff
-o status
-o branches and master -> why push
-o how to track masters master
+%\section{Working with git}
+%To be written\ldots
+%o gitweb
+%o diff
+%o status
+%o branches and master -> why push
+%o how to track masters master
 
 \section{Useful git commands}
 Here is a short list of useful git commands to familiarise yourself with when
