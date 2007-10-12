@@ -35,6 +35,19 @@ Corrections and improvements are most welcome via e-mail using the
 {\tt git-format-patch} facility.}
 
 \maketitle
+\section*{About this document}
+The intent of this document is to explain some of the aspects of working with
+git that I feel are somewhat poorly explained elsewhere. Most git commands
+have excellent man pages explaining in excruciating detail the particular
+command. What I feel is missing is a manual which explains what the commands
+are for, how the pieces fit together and how to actually work with git on a
+daily basis. This guide has been written with an audience consisting of the
+typical academic programmer in mind, and relies implicitly on a repository
+setup as outlined in the Git to CVS Migration Guide.
+
+Finally a disclaimer. I'm not an expert on git, nor do I have a huge
+experience working with git. All comments, corrections and suggestions are 
+most welcome!
 
 \section{Introduction to git}
 Git is different from CVS in most respects. When you clone a repository you
@@ -45,12 +58,23 @@ $ scp -r myserver:/path/to/myrepo .
 \end{verbatim}
 Within this personal repository you can do \textit{whatever} you like, i.e. create
 branches, delete branches, tags, and of course commit as much as you ever
-like. It's only when you push to the master that others can see your changes. 
+like. It's only when you push to the master that others can see your changes.
+In fact, your (cloned) repository can act as a master for someone else! The
+division into master and client is really quite blurred and artificial in git.
+When you clone a repository, the new copy will contain administrative
+information in .git/config about where it was cloned from, and have a slightly
+modified branch structure (as you will see), but apart from this it's
+identical to it's parent. And where we humans can't choose nor change who our
+parents are, git has no problem in changing or removing the parent(s).
 
 \section{Branches in git}
 \subsection{Remote branches}
 The thing that differs most from CVS when working with git is the use of
-branches. Under git branches are used extensively! When you clone a repository
+branches. Under git branches are used extensively, and they are essentially
+free. It costs nearly nothing to create branches, both in terms of time and
+disk space. There is also no need to tag first and branch second, like in CVS.
+
+When you clone a repository
 (this is called the 'remote' repository, and is referred to as the 'origin')
 all the branches in that repo are renamed in your local copy by prefixing the
 branch name with '\texttt{origin/}'. These branches are called 'remote
@@ -123,33 +147,39 @@ $ git-add file(s)
 $ git-commit 
 \end{verbatim}
 
+\subsection{The goal}
+With so many possibilities for organising both repositories and branches it's
+important not to forget that the ultimate aim should be to get your beautiful
+new features merged with the master branch on the master server! It's like the
+musketeers, ``All for one, one for all!''. 
+
+It's important to update often from the master repository, partly not to drift
+too far away from the master branch, and also to incorporate all bug fixes
+etc. At the same time it's also important to push to the master often and in
+small increments, since this makes it a lot easier for other developers to
+stay in sync with \emph{your} work.
+
 \section{Cherry picking}
-That's really it! Of course there are still some nice tricks we can play with
+There are of course still lots nice tricks we can play with
 branches. Suppose you want to try out some idea, but you don't know exactly
 how it will work out. Create a new branch from your current working branch and
 check it out:
-
 \begin{verbatim}
 $ git-branch foobar
 $ git-checkout foobar
 \end{verbatim}
-
-Now work and commit often. If it turns out that everything is good and you
-want to keep all changes, merge them with your working branch and push them to
-the master:
-
+Now work hard and commit often. If it turns out that everything is good, and
+you want to keep all changes, merge them with your working branch and push
+them to the master:
 \begin{verbatim}
 $ git-checkout work
 $ git-merge foobar
 $ git-push origin work:myuserid
 \end{verbatim}
-
-Now you can delete the foobar branch for ever and all times:
-
+Now you can delete the foobar branch for ever and all times
 \begin{verbatim}
 $ git-branch -d foobar
 \end{verbatim}
-
 If, on the other hand it turn's out that you had a crackpot idea, and you
 don't want to see any of it anymore, delete the branch and all changes,
 commits and everything on the branch will be gone for ever! No trace of it.
@@ -158,15 +188,13 @@ keep, before discarding the rest? Well that's when small commits are useful
 because you can cherry pick! Chekout your work branch, fire up gitk on foobar,
 and find the commits you like to keep. Every commmit is identified by a long
 SHA1 hash (a long sequence of numbers and letters). Now cherry pick the
-commits you want into work:
-
+commits you want into the work branch:
 \begin{verbatim}
 $ git-checkout work
 $ gitk foobar &
 # find commit, copy the SHA1 hash with the mouse
 $ git-cherry-pick SHA1
 \end{verbatim}
-
 Repeat the cherry pick as many times you like. As you see, git gives a lot of
 flexibility by using branches. Just be a bit careful in the beginning not to
 make a mess and lose track of what you are doing. 
