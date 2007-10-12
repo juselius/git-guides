@@ -1,0 +1,175 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[english]{babel}
+\usepackage[OT1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{mydoc}
+\usepackage[pdftex,colorlinks=true,
+				 pdfstartview=FitV,
+				 linkcolor=blue,
+				 citecolor=blue,
+				 urlcolor=blue,
+		  ]{hyperref}
+
+\begin{document}
+\pagestyle{fancy}
+\fancyfoot{}
+\fancyhead{}
+\renewcommand{\sectionmark}[1]{\markboth{\sf\thesection.\ #1}{}}
+\renewcommand{\subsectionmark}[1]{}
+\fancyhead[R]{{\rmfamily\thepage}}
+
+\title{Git in a Nutshell}
+
+\subtitle{for normal people (version 0.1)}
+\author{{\sf Jonas Jus\'elius}}
+\address{
+{\tt <jonas.juselius@chem.uit.no>}\\
+{\sf University of Tromsø}\\
+{\sf Department of Chemistry}\\
+{\sf N-9037 University of Tromsø, Norway}
+}
+\years{2007}
+\abstract{Rev.1:\\{\tt git clone http://git.jonas.iki.fi/CVS2git.git}\\
+Corrections and improvements are most welcome via e-mail using the
+{\tt git-format-patch} facility.}
+
+\maketitle
+
+\section{Introduction to git}
+Git is different from CVS in most respects. When you clone a repository you
+get the WHOLE repository, everything, not just a working copy like in CVS!
+\texttt{git-clone} is almost the same as doing a
+\begin{verbatim}
+$ scp -r myserver:/path/to/myrepo .
+\end{verbatim}
+Within this personal repository you can do \textit{whatever} you like, i.e. create
+branches, delete branches, tags, and of course commit as much as you ever
+like. It's only when you push to the master that others can see your changes. 
+
+\section{Branches in git}
+\subsection{Remote branches}
+The thing that differs most from CVS when working with git is the use of
+branches. Under git branches are used extensively! When you clone a repository
+(this is called the 'remote' repository, and is referred to as the 'origin')
+all the branches in that repo are renamed in your local copy by prefixing the
+branch name with '\texttt{origin/}'. These branches are called 'remote
+branches' or 'tracking branches', to distinguish them from \emph{your}local
+branches.  \texttt{git branch -r} show all remote branches. When you run
+\texttt{git-fetch origin} \emph{all} remote branches are updated to the exact
+state of the remote repository. Now you can inspect the changes on those
+branches by either using \texttt{gitk}, or a combination of \texttt{git-log},
+\texttt{git-whatchanged}, \texttt{git-diff} and \texttt{git-annotate}, e.g. to
+inspect changes on the most important remote branch: \texttt{gitk
+origin/master}. Note
+that \texttt{git-fetch} updates the remote tracking branches, not your working branches!
+Never, ever, checkout a remote branch directly unless you absolutely want
+trouble. 
+
+\subsection{Tracking remote branches}
+In order to incorporate changes in in remote branches you need to merge your
+working copy with the remote branch, e.g. (\texttt{git-checkout mybranch}),
+\texttt{git-merge
+origin/master}. If you get a conflict, run \texttt{git-mergetool} which will fire up the
+merge tool of your choice. When you have resolved all issues, run
+\texttt{git-commit}
+to complete the merge. The \texttt{git-pull} command basically does a
+\texttt{git-fetch} and
+\texttt{git-merge} in one go. I recommend you \emph{do not} use it unless you very carefully
+read the man page first, since it has some pitfalls!
+
+As I mentioned earlier, never work on a remote branch directly! This will
+cause terrible problems when you try to sync with the remote repository.
+Instead create a local branch \emph{from} the remote branch and do your work
+on it instead: \texttt{git-branch foobar origin/foobar}; \texttt{git-checkout
+foobar}. After a \texttt{git-fetch} run \texttt{git-merge origin/foobar} to
+get the latest updates on the branch (and also \texttt{git-merge
+origin/master} if you want to track the "official" changes).  When you feel
+you have something worth showing to others (or just for backup) you can push
+your changes on some branch to your personal branch on the master server, i.e.
+the remote repository, \texttt{git-push origin mybranch:myuserid}.
+
+\subsection{Daily git}
+All this might sound a bit confusing, so here are my recommendations for
+how to work with git until you get used to it:
+When you clone the master repo, you will get a set of remote branches
+(\texttt{git-branch -r}), and one local working branch called 'master'. This branch is
+in the exact state of the remote master branch (i.e. origin/master and master
+are identical). I suggest you keep it this way, and create a working branch
+for yourself, e.g. 
+
+\begin{verbatim}
+$ git-branch work
+$ git-checkout work 
+\end{verbatim}
+
+Now work like you normally do, and every now and then (every morning for
+example) do
+
+\begin{verbatim}
+$ git-fetch origin
+$ gitk origin/master
+# if you like what you see
+$ git-merge origin/master 
+\end{verbatim}
+
+Every time you have made changes which can be considered complete in some
+sense (you know best), do a commit (it's much better with many small commits
+than a few big commits as you will see):
+
+\begin{verbatim}
+$ git-status
+$ git-add file(s)
+$ git-commit 
+\end{verbatim}
+
+\section{Cherry picking}
+That's really it! Of course there are still some nice tricks we can play with
+branches. Suppose you want to try out some idea, but you don't know exactly
+how it will work out. Create a new branch from your current working branch and
+check it out:
+
+\begin{verbatim}
+$ git-branch foobar
+$ git-checkout foobar
+\end{verbatim}
+
+Now work and commit often. If it turns out that everything is good and you
+want to keep all changes, merge them with your working branch and push them to
+the master:
+
+\begin{verbatim}
+$ git-checkout work
+$ git-merge foobar
+$ git-push origin work:myuserid
+\end{verbatim}
+
+Now you can delete the foobar branch for ever and all times:
+
+\begin{verbatim}
+$ git-branch -d foobar
+\end{verbatim}
+
+If, on the other hand it turn's out that you had a crackpot idea, and you
+don't want to see any of it anymore, delete the branch and all changes,
+commits and everything on the branch will be gone for ever! No trace of it.
+But what if there are partially useful changes to foobar that you want to
+keep, before discarding the rest? Well that's when small commits are useful
+because you can cherry pick! Chekout your work branch, fire up gitk on foobar,
+and find the commits you like to keep. Every commmit is identified by a long
+SHA1 hash (a long sequence of numbers and letters). Now cherry pick the
+commits you want into work:
+
+\begin{verbatim}
+$ git-checkout work
+$ gitk foobar &
+# find commit, copy the SHA1 hash with the mouse
+$ git-cherry-pick SHA1
+\end{verbatim}
+
+Repeat the cherry pick as many times you like. As you see, git gives a lot of
+flexibility by using branches. Just be a bit careful in the beginning not to
+make a mess and lose track of what you are doing. 
+
+\end{document}
+
