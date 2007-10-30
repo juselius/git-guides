@@ -168,7 +168,6 @@ to be written\ldots
 \subsection{Odds and ends}
 git-mv, git-rm, git-grep, git-whatchanged, git-blame
 
-
 \section{Advanced git}
 \subsection{Cherry picking}
 There are of course still lots nice tricks we can play with
@@ -322,6 +321,51 @@ $ git-bisect reset
 \end{verbatim}
 
 \subsection{Undoing commits and resetting}
+Sometimes we screw up. It's embarrassing. And we don't want anybody to know
+about it. Like committing something we should not have, or even worse,
+misspelling a commit message. Whatever. Or maybe we want to undo a merge or a
+pull which screwed up our repository, causing tons of conflicts or breaking
+things badly. There are two commands for undoing commits, \texttt{git-revert}
+and \texttt{git-reset}. These two differ in the sense that \texttt{git-revert}
+will undo changes in a controlled, and in itself undoable manner, whereas
+\texttt{git-reset} resets the branch to a specified state invisibly and
+without possibility to go back. Ever. Your call.
+
+Suppose you have been working for a while, committing regularly, and after a
+while you realise that everything you have done the last few commits is utter
+garbage, and you want to go back 3 revisions and start over:
+\begin{verbatim}
+$ git-revert HEAD~3
+\end{verbatim}
+This resets your working copy to the specified revision, and makes commits the
+changes the revert introduced. Hence, you can go back when you realise that
+the garbage you had produced actually was gold after all.
+
+Another scenario is when you realise you have an embarrassing typo in a commit
+message, or that you forgot to include a file in the commit, or committed on
+too many files. Obviously you can always revert, but that's really quite
+unnecessary and does not really achieve what you want. In this situation you
+would to a soft reset, which means that the HEAD revision is reset to point to 
+another resent revision, but your \emph{working copy} is left intact. To undo
+a commit in this manner you would do the following:
+\begin{verbatim}
+$ git commit file1 file2 
+# uups, let's undo the commit message, and edit file1 and add file3 
+$ git reset --soft HEAD~1  
+$ vim file1 
+$ git add file3
+$ git commit -a -c ORIG_HEAD
+\end{verbatim}
+
+If you really, really want to reset the state of both the repository and your
+working copy you need to do a hard reset. Be warned, a hard reset throws away
+all commits and all changes to your files up to the specified revision forever. 
+There is no way of getting the information back again. To do a hard reset and
+go two revisions back, and at the same time also reset your working copy to
+that state:
+\begin{verbatim}
+$ git reset --hard HEAD~2
+\end{verbatim}
 
 \subsection{Rebasing}
 To be written\ldots
