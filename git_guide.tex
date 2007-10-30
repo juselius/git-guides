@@ -113,7 +113,19 @@ you have something worth showing to others (or just for backup) you can push
 your changes on some branch to your personal branch on the master server, i.e.
 the remote repository, \texttt{git-push origin mybranch:myuserid}.
 
-\subsection{Daily git}
+\subsection{The aim of the game}
+With so many possibilities for organising both repositories and branches it's
+important not to forget that the ultimate aim should be to get your beautiful
+new features merged with the master branch on the master server! It's like the
+musketeers, ``All for one, one for all!''. 
+
+It's important to update often from the master repository, partly not to drift
+too far away from the master branch, and also to incorporate all bug fixes
+etc. At the same time it's also important to push to the master often and in
+small increments, since this makes it a lot easier for other developers to
+stay in sync with \emph{your} work.
+
+\section{Daily git}
 All this might sound a bit confusing, so here are my recommendations for
 how to work with git until you get used to it:
 When you clone the master repo, you will get a set of remote branches
@@ -147,19 +159,18 @@ $ git-add file(s)
 $ git-commit 
 \end{verbatim}
 
-\subsection{The goal}
-With so many possibilities for organising both repositories and branches it's
-important not to forget that the ultimate aim should be to get your beautiful
-new features merged with the master branch on the master server! It's like the
-musketeers, ``All for one, one for all!''. 
+\subsection{Specifying revisions}
+To be written\ldots
 
-It's important to update often from the master repository, partly not to drift
-too far away from the master branch, and also to incorporate all bug fixes
-etc. At the same time it's also important to push to the master often and in
-small increments, since this makes it a lot easier for other developers to
-stay in sync with \emph{your} work.
+\subsection{Specifying repositories and branches}
+to be written\ldots
 
-\section{Cherry picking}
+\subsection{Odds and ends}
+git-mv, git-rm, git-grep, git-whatchanged, git-blame
+
+
+\section{Advanced git}
+\subsection{Cherry picking}
 There are of course still lots nice tricks we can play with
 branches. Suppose you want to try out some idea, but you don't know exactly
 how it will work out. Create a new branch from your current working branch and
@@ -198,9 +209,6 @@ $ git-cherry-pick SHA1
 Repeat the cherry pick as many times you like. As you see, git gives a lot of
 flexibility by using branches. Just be a bit careful in the beginning not to
 make a mess and lose track of what you are doing. 
-
-\subsection{Remote repositories}
-to be written\ldots
 
 \subsection{Stashing}
 Sometimes when you are working on a branch you temporarily need to switch to
@@ -266,19 +274,57 @@ file. This process is much simplified using the \texttt{git-archive} which
 will create a .tar or .zip file of the wanted revision on the fly
 \begin{verbatim}
 # to create a uncompressed archive
-$ git archive --prefix=myprog-1.42/ HEAD >../myprog_1.42.tar
+$ git-archive --prefix=myprog-1.42/ HEAD >../myprog_1.42.tar
 # compressed archive are also trivial
-$ git archive --prefix=myprog-1.42/ HEAD |gzip -c >../myprog_1.42.tgz
+$ git-archive --prefix=myprog-1.42/ HEAD |gzip -c >../myprog_1.42.tgz
 \end{verbatim}
+This creates an archive of the latest version (HEAD) on the current branch.
+You can specify any branch specifier or tag you like to export some other
+version.
 Please note the trailing '/' in the prefix, without it you will get a bit of a
 surprise\ldots
 
 \subsection{Finding bugs}
+Everyone doing software development either alone, or in a group have been in
+the situation where a bug is suddenly found, with very little clue when
+it has been introduced, lest where it might be. It can be very tedious to go
+back and figure out where and when the bug was introduced. Fortunately git has
+a very clever mechanism to aid us in the process, using the command
+\texttt{git bisect}. The way it work is by tagging a starting revision as bad,
+and then tag some \textit{known, working} revision as good.
+\texttt{git-bisect} will checkout a new revision, and then you compile, test
+and mark it as either good or bad. A few of these cycles, and the offending
+revision is found! Here is the process:
 
-\subsection{Resetting}
+\begin{verbatim}
+$ git-bisect start 
+$ git-bisect bad # current rev is bad
+$ git-bisect good version-1.21 # tagged version 1.21 works, guaranteed!
+# now git will checkout a new revision 
+$ make; test.sh 
+# bad?
+$ git bisect bad
+$ make; test.sh
+...
+\end{verbatim}
+In fact, git will allow you to automate the whole process! If your test script
+can determine if a version is working or not, then just let your script return
+0 if the revision is working and 1 it's bad, and run
+\begin{verbatim}
+$ git-bisect start 
+$ git-bisect run ./test.sh
+\end{verbatim}
+So, now that you have found the offending revision you probably want to go 
+back to the latest revision and start debugging properly. To do this just
+execute
+\begin{verbatim}
+$ git-bisect reset
+\end{verbatim}
 
-\subsection{Odds and ends}
-git-mv, git-rm, git-grep, git-whatchanged, git-blame
+\subsection{Undoing commits and resetting}
+
+\subsection{Rebasing}
+To be written\ldots
 
 \section{Using git for collaboration}
 Revision management goes well beyond just source code management for a group
