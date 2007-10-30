@@ -257,6 +257,21 @@ tool \texttt{meld} I warmly recommend that you familiarise yourself with this
 excellent piece of software!
 
 \subsection{Exporting a repository}
+Sometimes you want to package your source, e.g. for an official release, but
+you certainly don't want to include the whole repository in the package. One
+way to do this is to simply make a copy of the repository, checkout the right
+branch, clean out all
+generated and unnecessary files, delete the .git directory and make a tar
+file. This process is much simplified using the \texttt{git-archive} which
+will create a .tar or .zip file of the wanted revision on the fly
+\begin{verbatim}
+# to create a uncompressed archive
+$ git archive --prefix=myprog-1.42/ HEAD >../myprog_1.42.tar
+# compressed archive are also trivial
+$ git archive --prefix=myprog-1.42/ HEAD |gzip -c >../myprog_1.42.tgz
+\end{verbatim}
+Please note the trailing '/' in the prefix, without it you will get a bit of a
+surprise\ldots
 
 \subsection{Finding bugs}
 
