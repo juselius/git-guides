@@ -200,6 +200,7 @@ flexibility by using branches. Just be a bit careful in the beginning not to
 make a mess and lose track of what you are doing. 
 
 \subsection{Remote repositories}
+to be written\ldots
 
 \subsection{Stashing}
 Sometimes when you are working on a branch you temporarily need to switch to
@@ -222,15 +223,45 @@ $ git stash apply
 $ git stash clear
 \end{verbatim}
 
-
 \subsection{Resolving conflicts}
 Every now and then you end up in a situation where files have overlapping or
 incompatible changes. This will be flagged as a conflict by git, and you will
-have to resolve the conflict before you can proceed. There 
+have to resolve the conflict before you can proceed. When you get a conflict,
+git will insert markers in the file showing where the conflict occurred. For
+example, working on branch foobar, you merge with changes on the master branch
+and get a conflict. The problematic section in the offending file looks like
+this:
+\begin{verbatim}
+<<<<<<< HEAD:foobar
+This is the stuff I have in my working copy in branch foobar...
+=======
+This is what master currently looks like. Now you need to edit the file, pick
+the part you want to retain and remove all the markers.
+>>>>>>> master:foobar
+\end{verbatim}
+After you have resolved the conflict in your favorite editor, save and
+recommit:
+\begin{verbatim}
+$ git commit
+\end{verbatim}
+A more convenient way to handle conflicting merges is to configure
+\texttt{git-mergetool} to launch your favourite diff/merge tool:
+\begin{verbatim}
+# this only needs to be configured once
+$ git-configure --global merge.tool meld
+$ git-mergetool
+$ git commmit
+\end{verbatim}
+If you are not familiar with the general purpose graphical diff- and merge
+tool \texttt{meld} I warmly recommend that you familiarise yourself with this
+excellent piece of software!
 
 \subsection{Exporting a repository}
-\subsection{Resetting}
+
 \subsection{Finding bugs}
+
+\subsection{Resetting}
+
 \subsection{Odds and ends}
 git-mv, git-rm, git-grep, git-whatchanged, git-blame
 
