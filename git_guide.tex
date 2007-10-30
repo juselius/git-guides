@@ -200,11 +200,34 @@ flexibility by using branches. Just be a bit careful in the beginning not to
 make a mess and lose track of what you are doing. 
 
 \subsection{Remote repositories}
+
 \subsection{Stashing}
+Sometimes when you are working on a branch you temporarily need to switch to
+another branch to test something, or maybe fix a bug. In a situation like this
+you cannot just checkout the other branch, since then all your local changes
+would get lost (don't worry, git will not allow you to do this). However, you
+might not want to commit your changes either, since they are not ready or
+complete. In situations like this git allows you to temporarily commit your
+changes in a ``stash''. Running \texttt{git-stash} saves your latest changes
+and resets the current branch to it's latest checked in state (the HEAD). When
+you are ready to continue working you just apply changes in the stash.
+\begin{verbatim}
+$ git stash save
+$ git stash list
+stash@{0}: WIP on mybranch: ad6d0aa... foo
+$ git checkout other branch
+...
+$ git checkout mybranch
+$ git stash apply
+$ git stash clear
+\end{verbatim}
+
+
 \subsection{Resolving conflicts}
 Every now and then you end up in a situation where files have overlapping or
 incompatible changes. This will be flagged as a conflict by git, and you will
-have to resolve the conflict before you can proceed.
+have to resolve the conflict before you can proceed. There 
+
 \subsection{Exporting a repository}
 \subsection{Resetting}
 \subsection{Finding bugs}
