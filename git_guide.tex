@@ -199,5 +199,84 @@ Repeat the cherry pick as many times you like. As you see, git gives a lot of
 flexibility by using branches. Just be a bit careful in the beginning not to
 make a mess and lose track of what you are doing. 
 
+\subsection{Remote repositories}
+\subsection{Stashing}
+\subsection{Resolving conflicts}
+Every now and then you end up in a situation where files have overlapping or
+incompatible changes. This will be flagged as a conflict by git, and you will
+have to resolve the conflict before you can proceed.
+\subsection{Exporting a repository}
+\subsection{Resetting}
+\subsection{Finding bugs}
+\subsection{Odds and ends}
+git-mv, git-rm, git-grep, git-whatchanged, git-blame
+
+\section{Using git for collaboration}
+Revision management goes well beyond just source code management for a group
+of programmers. Revision management is useful for most tasks which are
+expected to evolve with time, like for example manuscripts.
+Since git is very easy to set up, and supports a wide range of communication
+protocols, git can be useful for many collaborative tasks. In the following
+section we will examine how git can be used to collaborate in a highly
+disconnected environment, where none of the participants have access to a
+common server or each others machines. This is a typical situation which
+arises for shorter term projects, like when collaborating on a scientific
+manuscript. To facilitate this situation git offers a powerful e-mail facility
+for communication changes.
+
+Suppose you are working on a LaTeX manuscript and you want to have the whole
+manuscript under revision control:
+\begin{verbatim}
+$ cd ~/tex/manus/
+$ git init
+$ git add manus.tex fig1.ps fig2.ps
+$ git commit
+\end{verbatim}
+That's it! Now you can work happily, and remember commit every now and then so
+that you always can go back in history if you need to. 
+
+At the point when you are ready to send the manuscript to your collaborators,
+you can either clone your repository in /tmp to obtain a clean copy, or just
+clean out all unnecessary files. Then make an archive of the whole archive and
+send it by email to your collaborators\footnote{If the file is very big it's
+probably better to provide a (hidden) link to your home page, as many mail
+servers will not accept excessively large files}. 
+\begin{verbatim}
+$ cd /tmp
+$ git clone ~/tex/manus
+$ tar vfcz ~/tex/manus.tgz manus
+$ rm -rf manus
+# mail and attach ~/tex/manus.tex
+\end{verbatim}
+
+Now you and your collaborators continue to work the manuscript. After some
+time, and a number of commits, it's time to share your changes with the 
+others. The first step is to identify the commits you want to send. The
+commits can easily be identified by running \texttt{git log}. Suppose you have
+made 3 commits since you last distributed your changes:
+\begin{verbatim}
+$ git format-patch -3
+\end{verbatim}
+This creates 3 patch files in the current directory, which now can be attached
+and sent to your collaborators using your favourite mailer. Alternatively you
+can use \texttt{git-send-email} to do the job.
+\begin{verbatim}
+$ git-send-email --subject '[patch] my latest changes' --to foo@bar.org \
+--cc raboof@foobar.edu --cc myself@myhost.net *.patch
+$ rm *.patch
+\end{verbatim}
+\texttt{git-send-mail} can also be configured using \texttt{git-configure} to
+avoid having to write the long command line every time.
+
+When you receive changes from your collaborators by e-mail, just save the
+mail(s) in your project directory and apply the changes:
+\begin{verbatim}
+$ git-am --3way mailfile(s)
+$ rm mailfile(s)
+\end{verbatim}
+It might be a good idea to create and switch to a temporary branch before 
+applying the patches, since this gives you better possibility to inspect the 
+changes before merging them with your main branch. Obviously, if there is a
+conflict it has to be resolved in the normal manner.
 \end{document}
 
