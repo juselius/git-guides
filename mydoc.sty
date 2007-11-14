@@ -85,16 +85,16 @@
 \gdef\@author{}\gdef\@title{}\gdef\@years{}\gdef\@abstract{}
 \let\maketitle\relax}
 
-\renewcommand\tableofcontents{%
-	\if@twocolumn
-	  \@restonecoltrue\onecolumn
-	\else
-	  \@restonecolfalse
-	\fi
-	\chapter*{\contentsname
-		\@mkboth{%
-		   {\sf\contentsname}}{}}%
-	\@starttoc{toc}%
-	\if@restonecol\twocolumn\fi
-}
+%\renewcommand\tableofcontents{%
+%    \if@twocolumn
+%      \@restonecoltrue\onecolumn
+%    \else
+%      \@restonecolfalse
+%    \fi
+%    \chapter*{\contentsname
+%        \@mkboth{%
+%           {\sf\contentsname}}{}}%
+%    \@starttoc{toc}%
+%    \if@restonecol\twocolumn\fi
+%}
 %
