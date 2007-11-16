@@ -114,7 +114,7 @@ Since everything is contained in the project directory, no special permissions
 or groups are needed. 
 
 \subsection{Cloning a repository}
-Ok, so you have repository on a server somewhere, and you want to get your own
+Ok, so you have a repository on a server somewhere, and you want to get your own
 working copy and dig in! Git supports many different protocols (http, ssh,
 git\ldots), but for simplicity I'll assume you have ssh access to the server.
 To get your own repository, simply run
@@ -156,7 +156,7 @@ they will remain hidden until you decide to publish them by pushing them
 to a common server.
 
 \section{Basic git}
-The most basic operation under a revision control system is saving the sate of
+The most basic operation under a revision control system is saving the state of
 a project as a new revision. When you create new files  
 these also need to be placed under revision control. This is done with
 \begin{verbatim}
@@ -170,7 +170,7 @@ under revision control in the repository, to selectively mark them for
 inclusion in the next commit. This is known as \emph{staging} files for a
 commit. We thus have two ways of marking files for a commit, either by
 directly specifying the files to \texttt{git commit} or by first adding them
-with \texttt{git add} and the run \texttt{git commit} without any files. 
+with \texttt{git add} and then running \texttt{git commit} without any files. 
 
 \subsection{Branches}
 The use of branches is where git probably differs most from CVS to most users.
@@ -189,14 +189,18 @@ much first do a checkout
 $ git checkout foobar
 \end{verbatim}
 This command switches to the new branch, and updates the files in the source
-tree to the current HEAD of the branch. The checkout command is thus very
+tree to the current HEAD of the branch. HEAD is a symbolic tag representing
+the latest revision on a branch. For more detailed information on how to
+specify revisions see \Ref{sec:revision}.
+
+The checkout command is thus very
 different from the \texttt{cvs checkout} command.
 Since branches are so cheap and easy to use, it's often convenient to create a
 new branch for a specific task. Such branches are known as topic branches.
 Branches are also good for experimentation; suppose you have a wild idea you
 want to try out, just create a branch, and discard it if it doesn't work out.
-Suppose we want to base the experiment on a branch named work, here is how to
-create and switch branch in one go
+Suppose we want to base the experiment on a branch named 'work', here is how to
+create and switch branch in one go:
 \begin{verbatim}
 $ git checkout -b wildidea work
 # work, test, commit, work... realise it was a bad idea
@@ -218,7 +222,7 @@ info.} to do this; merging and cherry
 picking (for more information on cherry picking see \Ref{sec:cherry}).
 
 Merging is the main mechanism for incorporating changes from one branch 
-into another. Merging is trivial if you work in a ever so slightly disciplined
+into another. Merging is trivial if you work in a slightly disciplined
 way, avoiding making changes to the same files in different branches without
 synchronising first. Of course, it's not a problem modifying the same files,
 but then you will have to select by hand which changes to retain. For more
@@ -272,7 +276,7 @@ Tags can also be specified retroactively by specifying a revision
 \begin{verbatim}
 $ git tag working-version7 HEAD~42
 \end{verbatim}
-Finally, tag are deleted by 
+Finally, tags are deleted by running
 \begin{verbatim}
 $ git tag -d working-version7 
 \end{verbatim}
@@ -291,11 +295,11 @@ Note that this does not delete the file irrevocably, since going back to a
 previous revision will bring it back (as it should).
 
 \section{Working with remote repositories}
-Even though revision control can be very useful in an one-man universe, it's
-when collaborating with others that git reveals it's true power and strength.
+Even though revision control can be very useful in a one-man universe, it's
+when collaborating with others that git reveals its true power and strength.
 The two basic operations when working with a remote repository are the pull
-and push operations, to retrieve and publish changes respectively. Still, it's
-good to keep in mind that your own repository is a full fledged repository,
+and push operations, to retrieve and publish changes, respectively. Still, it's
+good to keep in mind that your own repository is a full-fledged repository,
 even when you are working with a remote repository. The only difference to
 the ``master'' repository is that a symbolic pointer called ``origin'' is set
 up to point back to where the repository was cloned from\footnote{You can in
@@ -303,15 +307,24 @@ fact set up multiple remote repositories if you like, see \Ref{sec:remotes}}.
 
 \subsection{Remote branches in git}
 \label{sec:branch}
-When you clone a 'remote' repository, referred to as the 'origin', all the
-branches in that repository are renamed in your local copy by prefixing the
-branch name with '\texttt{origin/}'. These branches are called 'remote
-branches' or 'tracking branches', to distinguish them from \emph{your}local
-branches.  To view all remote branches, run
+When you clone a repository, the repository you cloned will be referred to as
+a remote repository (even if it's on the same machine). The default remote
+repository is called 'origin'. The repository you just cloned has at least one
+branch ('master'), but probably more.
+When you clone repository all the branches in the that repository are renamed 
+in your local copy by prefixing the branch name with '\texttt{origin/}'. Thus,
+the 'master' branch in the remote repository will be named 'origin/master' in
+your local copy.
+These branches are called 'remote
+branches' or 'tracking branches', to distinguish them from \emph{your} local
+branches. The point of having these branches is that after an update, 
+they will always be in the exact same state as the corresponding branch in the 
+remote repository, i.e. they track the remote repository.
+
+To view all remote branches, run
 \begin{verbatim}
 $ git branch -r
 \end{verbatim}
-
 Whenever you run
 \texttt{git fetch origin} \emph{all} remote branches and tags 
 are updated to the exact
@@ -359,7 +372,7 @@ up to something you find worthy of sharing with others. Before you
 push your changes to the remote server it is essential that you make sure that 
 you are in sync with the branch you are going to push to. For a push to work
 it must result in a so called fast-forward merge.
-Fast-forward means that the files you want to merge with another branch, must
+Fast-forward means that the files you want to merge with another branch must
 have the files in the other branch as parents.  Simply stated, the files on
 the other branch must not have changed since the last pull. If a push fails
 because it is not fast-forward, you must first fetch, merge and possible
@@ -384,6 +397,8 @@ branch and push the specified branch to it, do
 \begin{verbatim}
 $ git push origin <branch>:refs/heads/<branch>
 \end{verbatim}
+As a technical side note, the 'refs/heads' syntax refers to the actual
+directory structure in the internal git repository in \texttt{.git/}.
 Once you have created the branch, you can
 use the same syntax as when operating on local branches. 
 
@@ -400,7 +415,7 @@ $ git push origin :refs/tags/<tag>
 \end{verbatim}
 
 \subsection{Cleaning up}
-Branches come and go. Some branches have very long life times and others just
+Branches come and go. Some branches have very long lifetimes and others just
 exist for a short while. When remote branches get deleted, git does not
 automatically register this when you do a \texttt{git fetch}, it just ignores
 them. Thus, the number of stale remote branches can grow, cluttering the
@@ -480,13 +495,13 @@ It's usually a good idea to place this file under revision control too.
 
 \subsection{Examining logs and changes}
 Often it's nice to be able to browse the commit logs on a branch, either
-to identify a particular commit or to just see what others might have
+to identify a particular commit or just to see what others might have
 committed. To view the commit log run
 \begin{verbatim}
 $ git log
 \end{verbatim}
 If the information provided by git log is not enough, and viewing actual
-changes is too much 
+changes is too much, then
 \begin{verbatim}
 $ git whatchanged
 \end{verbatim}
@@ -497,7 +512,7 @@ modifications in a particular commit.
 One of the most important aspects of revision control is that it allows you to
 follow how files change over time. We have already looked at how to examine
 the development history trough logs and by listing which files have changed.
-We shall now turn our focus to how to examine how the actual files change
+We shall now turn our focus on how to examine how the actual files change
 between revisions. For this purpose git provides a very powerful command:
 \begin{verbatim}
 $ git diff
@@ -538,8 +553,8 @@ This will match the regexp for all files in the current revision.
 
 \subsection{Who to blame}
 We have all been there, someone has messed up your code and you don't know who
-to blame\footnote{This is because in 9 out of a 10 cases it's yours truly,
-with a perfect, albeit short, memory}.
+to blame\footnote{This is because in 9 out of 10 cases it's you yourself,
+with a perfect, albeit short, memory.}.
 Fortunately git comes to our rescue:
 \begin{verbatim}
 $ git blame file
@@ -556,8 +571,8 @@ Since git is very easy to set up, and supports a wide range of communication
 protocols, git can be useful for many collaborative tasks. In the following
 section we will examine how git can be used to collaborate in a highly
 disconnected environment, where none of the participants have access to a
-common server or each others machines. This is a typical situation which
-arises for shorter term projects, like when collaborating on a scientific
+common server or each other's machines. This is a typical situation which
+arises for shorter-term projects, like when collaborating on a scientific
 manuscript. To facilitate this situation git offers a powerful e-mail facility
 for communication changes.
 
@@ -569,12 +584,12 @@ $ git init
 $ git add manus.tex fig1.ps fig2.ps
 $ git commit
 \end{verbatim}
-That's it! Now you can work happily, and remember commit every now and then so
-that you always can go back in history if you need to. 
+That's it! Now you can work happily, and remember to commit every now and then
+so that you always can go back in history if you need to. 
 
 At the point when you are ready to send the manuscript to your collaborators,
 you can either clone your repository in /tmp to obtain a clean copy, or just
-clean out all unnecessary files. Then make an archive of the whole archive and
+clean out all unnecessary files. Then make an archive of the whole project and
 send it by email to your collaborators\footnote{If the file is very big it's
 probably better to provide a (hidden) link to your home page, as many mail
 servers will not accept excessively large files}. 
@@ -612,10 +627,9 @@ $ git am --3way mailfile(s)
 $ rm mailfile(s)
 \end{verbatim}
 It might be a good idea to create and switch to a temporary branch before 
-applying the patches, since this gives you better possibility to inspect the 
+applying the patches, since this gives you a better possibility to inspect the 
 changes before merging them with your main branch. Obviously, if there is a
 conflict it has to be resolved in the normal manner.
-
 
 \section{Advanced git}
 \subsection{Configuring git}
@@ -685,6 +699,7 @@ tool \texttt{meld} I warmly recommend that you familiarise yourself with this
 excellent piece of software!
 
 \subsection{Specifying revisions}
+\label{sec:revision}
 Being able to specify revisions is important whenever we want to in any way 
 access older revisions. Git has a number of different ways of specifying a
 certain revision, some which we have seen already:
@@ -710,9 +725,25 @@ git show <HEAD|tag|branch|SHA1>~N
 Some shells interact poorly with the '\verb ~ ' and a '\verb ^ ' 
 can be used instead.
 
-Every commit (everything in fact) is internally identified by a
-cryptography-strength one-way SHA1 hash (40 hexdigits), which \emph{uniquely}
-identifies any commit (or file). Where ever a revision is needed one can give
+Every commit (every object in fact) is internally identified by a
+cryptography-strength one-way SHA1 hash consisting of 40 hexdigits, which
+\emph{uniquely} identifies any commit (or file). These hexdigits can be found
+by running 
+\begin{verbatim}
+$ git log
+commit 3ff678cc8abc29db9cb33ec9ca4e468496cb8063
+Author: Jonas Juselius <jonas@iki.fi>
+Date:   Fri Nov 16 12:47:47 2007 +0100
+
+    Updated .pdf version.
+
+...
+$
+\end{verbatim}
+where the first line of every log entry starts with the commit label and the
+hexdigit identifying that particular revision.
+
+Wherever a revision is needed one can give
 the SHA1 hash to exactly specify the revision (in fact, the first 6-8
 hexdigits are usually enough)
 \begin{verbatim}
@@ -798,7 +829,7 @@ the number of files in the repository grows.
 
 Modern versions of git still retains this simple storage scheme by default.
 This means that as your repository evolves with time it will grow
-substantially in size. Fortunately git provides commands convert the
+substantially in size. Fortunately git provides commands to convert the
 individual objects in the database into a \emph{pack} file, which stores only
 the differences between revisions. Once the pack has been generated, all the
 old objects are unnecessary and can be pruned:
@@ -836,14 +867,14 @@ surprise\ldots
 \subsection{Finding bugs}
 Everyone doing software development either alone, or in a group have been in
 the situation where a bug is suddenly found, with very little clue when
-it has been introduced, lest where it might be. It can be very tedious to go
-back and figure out where and when the bug was introduced. Fortunately git has
-a very clever mechanism to aid us in the process, using the command
+it has been introduced, much less where it might be. It can be very tedious to
+go back and figure out where and when the bug was introduced. Fortunately git
+has a very clever mechanism to aid us in the process, using the command
 \texttt{git bisect}. The way it work is by tagging a starting revision as bad,
-and then tag some \textit{known, working} revision as good.
-\texttt{git bisect} will checkout a new revision, and then you compile, test
-and mark it as either good or bad. A few of these cycles, and the offending
-revision is found! Here is the process:
+and then tag some \textit{known, working} revision as good.  \texttt{git
+bisect} will checkout a new revision, and then you compile, test and mark it
+as either good or bad. A few of these cycles, and the offending revision is
+found! Here is the process:
 
 \begin{verbatim}
 $ git bisect start 
@@ -877,7 +908,7 @@ misspelling a commit message. Whatever. Or maybe we want to undo a merge or a
 pull which screwed up our repository, causing tons of conflicts or breaking
 things badly. There are two commands for undoing commits, \texttt{git revert}
 and \texttt{git reset}. These two differ in the sense that \texttt{git revert}
-will undo changes in a controlled, and in itself undoable manner, whereas
+will undo changes in a controlled, and in itself reversible manner, whereas
 \texttt{git reset} resets the branch to a specified state invisibly and
 without possibility to go back. Ever. Your call.
 
@@ -887,15 +918,15 @@ garbage, and you want to go back 3 revisions and start over:
 \begin{verbatim}
 $ git revert HEAD~3
 \end{verbatim}
-This resets your working copy to the specified revision, and makes commits the
+This resets your working copy to the specified revision, and commits the
 changes the revert introduced. Hence, you can go back when you realise that
 the garbage you had produced actually was gold after all.
 
 Another scenario is when you realise you have an embarrassing typo in a commit
-message, or that you forgot to include a file in the commit, or committed on
+message, or that you forgot to include a file in the commit, or committed
 too many files. Obviously you can always revert, but that's really quite
 unnecessary and does not really achieve what you want. In this situation you
-would to a soft reset, which means that the HEAD revision is reset to point to 
+would do a soft reset, which means that the HEAD revision is reset to point to 
 another resent revision, but your \emph{working copy} is left intact. To undo
 a commit in this manner you would do the following:
 \begin{verbatim}
@@ -946,11 +977,11 @@ $ git push myremote mybranch:mybranch
 $ git push --all myremote 
 \end{verbatim}
 
-A good solution might be to have central storage area, with a true ``master'' 
+A good solution might be to have a central storage area, with a true ``master'' 
 repository, to which only a few people have write access to. The other
 developers can create their own personal repositories in the storage area, and
 have full access to that repository. By setting up the \texttt{gitweb}
-interface it's becomes very easy to track what everybody is doing through 
+interface it becomes very easy to track what everybody is doing through 
 the web.
 
 To set up your own sub-master repository follow these steps:
