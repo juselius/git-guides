@@ -18,6 +18,7 @@
 \renewcommand{\sectionmark}[1]{\markboth{\sf\thesection.\ #1}{}}
 \renewcommand{\subsectionmark}[1]{}
 \fancyhead[R]{{\rmfamily\thepage}}
+\newcommand{\Ref}[1]{section~\ref{#1}, p.~\pageref{#1}}
 
 \title{Git in a Nutshell}
 
@@ -30,9 +31,9 @@
 {\sf N-9037 University of Tromsø, Norway}
 }
 \years{2007}
-\abstract{Rev 0.4:\\{\tt git clone http://git.jonas.iki.fi/CVS2git.git}\\
+\abstract{Rev 0.5:\\{\tt git clone http://git.jonas.iki.fi/git\_guides.git}\\
 Corrections and improvements are most welcome via e-mail using the
-{\tt git-format-patch} facility.}
+{\tt git format-patch} facility.}
 
 
 \maketitle
@@ -51,12 +52,12 @@ outlined in the Git to CVS Migration Guide.
 
 All git commands have excellent man pages explaining in
 excruciating detail the particular command. As you read through this manual,
-it can be a good idea have a quick look at the corresponding manual pages of
+it might be a good idea have a quick look at the corresponding manual pages of
 the commands, just to give you an idea of more advanced features lurking under
 the surface. For example, get all available information on the
-\texttt{git-checkout} command, run
+\texttt{git checkout} command, run
 \begin{verbatim}
-$ man git-checkout
+$ man git checkout
 \end{verbatim}
 Don't get overwhelmed by the amount of detail in the man pages. As
 you gain experience and confidence working with git you will learn to
@@ -71,23 +72,26 @@ Git is a very powerful, easy to use and flexible revision control system.
 Although git has many advanced and flexible features, most basic  day-to-day
 operations are very simple to use. 
 
-Git has been designed in very UNIX-like fashion. It's built from a set of
+Git has been designed in very UNIX-like fashion; it's built from a set of
 small, efficient programs which do one thing, and do it well. By combining
 these programs, new high-level commands can be created to do more or less any
 desired task. This structure is reflected in how git commands are executed.
 There are usually two equivalent ways of executing a command, either by
 executing the command directly
 \begin{verbatim}
-$ git-command args ...
+$ git command args ...
 \end{verbatim}
 or by using the \texttt{git} command which wraps the most common commands for a
 more CVS-like interface
 \begin{verbatim}
 $ git command args ...
 \end{verbatim}
+In this guide I'll use the second form throughout, mostly beacuse modern
+shells like \texttt{zsh} and \texttt{bash} have command line
+completion features which interact very nicely with the \texttt{git} wrapper.
 
 \subsection{Creating a repository}
-Git makes it very easy to put projects (or manuscripts, or whatever) under
+Git makes it very easy to put projects (code, manuscripts, or whatever) under
 revision control. Suppose you have a directory which contains a number of
 files you want to have under revision control. The first step is to remove all
 files that should not be under revision control, i.e. files that can be
@@ -99,11 +103,12 @@ $ git add .
 $ git commit
 # edit the commit message, save and quit.
 \end{verbatim}
-That's it! Alternatively, if you don't want to clean your project directory
-you can instead pecify the files to include by explicitly giving the file
+That's it! 
+If you don't want to clean your project directory
+you can instead specify the files to include by explicitly giving the file
 names to \texttt{git add} instead of the current directory ('.')
 
-Running \texttt{git init} in a directory set up the repository and the
+Running \texttt{git init} in a directory sets up the repository and the
 necessary files in a directory named \texttt{.git/} in the current directory.
 Since everything is contained in the project directory, no special permissions
 or groups are needed. 
@@ -121,7 +126,7 @@ repository in the current directory.
 
 Git is quite different from CVS in most respects. When you clone a repository
 you get the WHOLE repository, everything, not just a working copy like in CVS!
-\texttt{git-clone} is almost the same as doing a
+\texttt{git clone} is almost the same as doing a
 \begin{verbatim}
 $ scp -r me@myserver:/path/to/myrepo .
 \end{verbatim}
@@ -142,7 +147,7 @@ With your repository in place, working with git is very easy. Work and edit
 your files, and whenever you have completed something to the point you think
 it could be worthy of a save, simply run
 \begin{verbatim}
-$ git-commit -a
+$ git commit -a
 # edit the commit message, and save
 \end{verbatim}
 A commit does not make your changes public. The commits are local to your
@@ -155,17 +160,17 @@ The most basic operation under a revision control system is saving the sate of
 a project as a new revision. When you create new files  
 these also need to be placed under revision control. This is done with
 \begin{verbatim}
-$ git-add file(s)
+$ git add file(s)
 \end{verbatim}
 This marks the files to be added to the repository next time you run 
 \texttt{git commit}. 
 
-In fact, you can run \texttt{git-add} on files already
+In fact, you can run \texttt{git add} on files already
 under revision control in the repository, to selectively mark them for
 inclusion in the next commit. This is known as \emph{staging} files for a
 commit. We thus have two ways of marking files for a commit, either by
-directly specifying the files to \texttt{git-commit} or by first adding them
-with \texttt{git-add} and the run \texttt{git-commit} without any files. 
+directly specifying the files to \texttt{git commit} or by first adding them
+with \texttt{git add} and the run \texttt{git commit} without any files. 
 
 \subsection{Branches}
 The use of branches is where git probably differs most from CVS to most users.
@@ -208,17 +213,16 @@ something you might want to save.
 Obviously branches would be very cumbersome to work with unless it would be
 nearly trivial to incorporate changes in one branch into another. Git provides
 two main ways\footnote{Actually, there is a third way called rebasing, but
-that method is for experts only. See the \texttt{git-rebase} man page for more
+that method is for experts only. See the \texttt{git rebase} man page for more
 info.} to do this; merging and cherry
-picking (for more information on cherry picking see
-section~\ref{sec:cherry}).
+picking (for more information on cherry picking see \Ref{sec:cherry}).
 
 Merging is the main mechanism for incorporating changes from one branch 
 into another. Merging is trivial if you work in a ever so slightly disciplined
 way, avoiding making changes to the same files in different branches without
 synchronising first. Of course, it's not a problem modifying the same files,
 but then you will have to select by hand which changes to retain. For more
-information on how to resolve conflicts see section~\ref{sec:conflict}.
+information on how to resolve conflicts see \Ref{sec:conflict}.
 
 Suppose that the branch 'wildidea' in the previous section worked out, and
 that you want to merge the changes back into the 'work' branch:
@@ -232,7 +236,7 @@ the exact same state as the  wildidea branch. If, on the other hand, the work
 branch has changed two things can happen: The changes do not overlap and the
 changes in wildidea are cleanly incorporated. If the same file in both
 branches have changed you will have a conflict which needs to be resolved
-(see section~\ref{sec:conflict}).
+(see \Ref{sec:conflict}).
 
 Branch names don't have to be simple strings. In fact you can create branches
 with sub-branches exactly like a directory tree. This can be useful if there
@@ -295,8 +299,7 @@ good to keep in mind that your own repository is a full fledged repository,
 even when you are are working with a remote repository. The only difference to
 the ``master'' repository is that a symbolic pointer called ``origin'' is set
 up to point back to where the repository was cloned from\footnote{You can in
-fact set up multiple remote repositories if you like, see
-section~\ref{sec:remotes}}.
+fact set up multiple remote repositories if you like, see \Ref{sec:remotes}}.
 
 \subsection{Remote branches in git}
 \label{sec:branch}
@@ -310,18 +313,18 @@ $ git branch -r
 \end{verbatim}
 
 Whenever you run
-\texttt{git-fetch origin} \emph{all} remote branches and tags 
+\texttt{git fetch origin} \emph{all} remote branches and tags 
 are updated to the exact
 state of the remote repository. You can inspect the changes on those
-branches by either using \texttt{gitk}, or a combination of \texttt{git-log},
-\texttt{git-whatchanged}, \texttt{git-diff} and \texttt{git-annotate} (see
-section~\ref{sec:examine}).
+branches by either using \texttt{gitk}, or a combination of \texttt{git log},
+\texttt{git whatchanged}, \texttt{git diff} and \texttt{git annotate} (see
+\Ref{sec:examine}).
 For example, to inspect the latest changes on the most important remote branch:
 \begin{verbatim}
 $ git fetch origin
 $ gitk origin/master
 \end{verbatim}
-Note that \texttt{git-fetch} updates the remote
+Note that \texttt{git fetch} updates the remote
 tracking branches, not your working branches!  Never, ever, checkout a remote
 branch directly unless you absolutely want trouble. 
 
@@ -329,16 +332,16 @@ branch directly unless you absolutely want trouble.
 In order to incorporate changes in in remote branches you need to merge your
 working copy with the remote branch, e.g. 
 \begin{verbatim}
-$ git-checkout mybranch
-$ git-merge origin/master 
+$ git checkout mybranch
+$ git merge origin/master 
 \end{verbatim}
 If you get a conflict, run
-\texttt{git-mergetool} which will fire up the merge tool of your choice. When
-you have resolved all issues, run \texttt{git-commit} to complete the merge 
-(see section~\ref{sec:conflict}).
+\texttt{git mergetool} which will fire up the merge tool of your choice. When
+you have resolved all issues, run \texttt{git commit} to complete the merge 
+(see \Ref{sec:conflict}).
 
-The \texttt{git-pull} command basically does a \texttt{git-fetch} and
-\texttt{git-merge} in one go. I recommend you \emph{do not} use it unless you
+The \texttt{git pull} command basically does a \texttt{git fetch} and
+\texttt{git merge} in one go. I recommend you \emph{do not} use it unless you
 very carefully read the man page first, since it has some pitfalls!
 
 As mentioned earlier, never work on a remote branch directly! This will
@@ -346,8 +349,8 @@ cause terrible problems when you try to sync with the remote repository.
 Instead create a local branch \emph{from} the remote branch and do your work
 on it instead: 
 \begin{verbatim}
-$ git-branch foobar origin/foobar
-$ git-checkout foobar 
+$ git branch foobar origin/foobar
+$ git checkout foobar 
 \end{verbatim}
 
 \subsection{Publishing changes}
@@ -399,11 +402,11 @@ $ git push origin :refs/tags/<tag>
 \subsection{Cleaning up}
 Branches come and go. Some branches have very long life times and others just
 exist for a short while. When remote branches get deleted, git does not
-automatically register this when you do a \texttt{git-fetch}, it just ignores
+automatically register this when you do a \texttt{git fetch}, it just ignores
 them. Thus, the number of stale remote branches can grow, cluttering the
 branch listings. To get rid of these stale branches simply run 
 \begin{verbatim}
-$ git-remote prune
+$ git remote prune
 \end{verbatim}
 
 \subsection{The aim of the game}
@@ -422,32 +425,32 @@ stay in sync with \emph{your} work.
 Git might seem a bit overwhelming in the beginning, so here are
 some recommendations for how to work with git until you get used to it:
 When you clone a remote master repository, you will get a set of remote
-branches (see section~\ref{sec:branch} for more info on branches), and one
+branches (see \Ref{sec:branch} for more info on branches), and one
 local working branch called 'master'. This branch is in the exact state of
 the remote master branch (i.e. origin/master and master are identical). I
 suggest you keep it this way, and create a new working branch for yourself, 
 e.g. 
 \begin{verbatim}
-$ git-branch work
-$ git-checkout work 
+$ git branch work
+$ git checkout work 
 \end{verbatim}
 Now work like you normally do, and every now and then (every morning for
 example) run
 \begin{verbatim}
-$ git-fetch origin
+$ git fetch origin
 $ gitk origin/master
 # if you like what you see
-$ git-merge origin/master 
+$ git merge origin/master 
 \end{verbatim}
 Every time you have made changes which can be considered complete in some
 sense (you know best), do a commit 
 \begin{verbatim}
-$ git-status
-$ git-add file(s)
-$ git-commit 
+$ git status
+$ git add file(s)
+$ git commit 
 \end{verbatim}
 It's much better with many small commits
-than a few big commits as you will see in section~\ref{sec:cherry}.
+than a few big commits as you will see in \Ref{sec:cherry}.
 
 \section{Examining repositories}
 \label{sec:examine}
@@ -458,9 +461,9 @@ $ git status
 \end{verbatim}
 you will get a compact status report of which files have modifications, which
 files are not under revision control and files staged for a commit (with
-git-add) but not committed yet. Often you have a bunch of files that should
+git add) but not committed yet. Often you have a bunch of files that should
 not be under revision control and that you really don't care about, e.g.
-object files and the like. To avoid having git-status always list these files
+object files and the like. To avoid having git status always list these files
 you can edit the file \texttt{.gitignore} in the project directory and list
 files and file patterns (one per line) that you want to ignore:
 \begin{verbatim}
@@ -479,7 +482,7 @@ committed. To view the commit log run
 \begin{verbatim}
 $ git log
 \end{verbatim}
-If the information provided by git-log is not enough, and viewing actual
+If the information provided by git log is not enough, and viewing actual
 changes is too much 
 \begin{verbatim}
 $ git whatchanged
@@ -498,7 +501,7 @@ $ git diff
 \end{verbatim}
 Simply running this command without any arguments prints out the differences
 between your working copy and the last checked in version. This can be
-extremely useful at times. \texttt{git-diff} can also show differences between
+extremely useful at times. \texttt{git diff} can also show differences between
 arbitrary revisions, branches, tags and so on. To view the differences
 between two branches
 \begin{verbatim}
@@ -506,8 +509,8 @@ $ git diff branch1 branch2
 \end{verbatim}
 
 Alternatively, when you finally have located a commit or a file revision that
-you want to examine in some detail, the versatile \texttt{git-show} command
-can be useful.  \texttt{git-show} is also convenient for retrieving older
+you want to examine in some detail, the versatile \texttt{git show} command
+can be useful.  \texttt{git show} is also convenient for retrieving older
 revisions of \emph{files}. Since git only deals with whole revisions, i.e. the
 \emph{state} of the repository at a given time, it's in principle not possible
 to retrieve the revision of a single file. Sometimes however it's convenient
@@ -524,10 +527,10 @@ filter the relevant files on the command line and \texttt{grep} for the
 string. Things become substantially more complicated if you want to search in 
 an older revision. Luckily git has a simple solution:
 \begin{verbatim}
-$ git-grep regexp 
+$ git grep regexp 
 \end{verbatim}
 This will match the regexp for all files in the current revision.
-\texttt{git-grep} has a lot of flags to limit and refine searches.
+\texttt{git grep} has a lot of flags to limit and refine searches.
 
 
 \subsection{Who to blame}
@@ -539,40 +542,109 @@ Fortunately git comes to our rescue:
 $ git blame file
 \end{verbatim}
 This command prints out the file with every line nicely annotated with who 
-changed it and when. There is another similar command \texttt{git-annotate}
+changed it and when. There is another similar command \texttt{git annotate}
 which annotates the file with the commit messages. 
+
+\section{Using git for collaboration}
+Revision management goes well beyond just source code management for a group
+of programmers. Revision management is useful for most tasks which are
+expected to evolve with time, like for example manuscripts.
+Since git is very easy to set up, and supports a wide range of communication
+protocols, git can be useful for many collaborative tasks. In the following
+section we will examine how git can be used to collaborate in a highly
+disconnected environment, where none of the participants have access to a
+common server or each others machines. This is a typical situation which
+arises for shorter term projects, like when collaborating on a scientific
+manuscript. To facilitate this situation git offers a powerful e-mail facility
+for communication changes.
+
+Suppose you are working on a LaTeX manuscript and you want to have the whole
+manuscript under revision control:
+\begin{verbatim}
+$ cd ~/tex/manus/
+$ git init
+$ git add manus.tex fig1.ps fig2.ps
+$ git commit
+\end{verbatim}
+That's it! Now you can work happily, and remember commit every now and then so
+that you always can go back in history if you need to. 
+
+At the point when you are ready to send the manuscript to your collaborators,
+you can either clone your repository in /tmp to obtain a clean copy, or just
+clean out all unnecessary files. Then make an archive of the whole archive and
+send it by email to your collaborators\footnote{If the file is very big it's
+probably better to provide a (hidden) link to your home page, as many mail
+servers will not accept excessively large files}. 
+\begin{verbatim}
+$ cd /tmp
+$ git clone ~/tex/manus
+$ tar vfcz ~/tex/manus.tgz manus
+$ rm -rf manus
+# mail and attach ~/tex/manus.tex
+\end{verbatim}
+
+Now you and your collaborators continue to work the manuscript. After some
+time, and a number of commits, it's time to share your changes with the 
+others. The first step is to identify the commits you want to send. The
+commits can easily be identified by running \texttt{git log}. Suppose you have
+made 3 commits since you last distributed your changes:
+\begin{verbatim}
+$ git format-patch -3
+\end{verbatim}
+This creates 3 patch files in the current directory, which now can be attached
+and sent to your collaborators using your favourite mailer. Alternatively you
+can use \texttt{git send-email} to do the job.
+\begin{verbatim}
+$ git send-email --subject '[patch] my latest changes' --to foo@bar.org \
+--cc raboof@foobar.edu --cc myself@myhost.net *.patch
+$ rm *.patch
+\end{verbatim}
+\texttt{git send-mail} can also be configured using \texttt{git configure} to
+avoid having to write the long command line every time.
+
+When you receive changes from your collaborators by e-mail, just save the
+mail(s) in your project directory and apply the changes:
+\begin{verbatim}
+$ git am --3way mailfile(s)
+$ rm mailfile(s)
+\end{verbatim}
+It might be a good idea to create and switch to a temporary branch before 
+applying the patches, since this gives you better possibility to inspect the 
+changes before merging them with your main branch. Obviously, if there is a
+conflict it has to be resolved in the normal manner.
+
 
 \section{Advanced git}
 \subsection{Configuring git}
 Git uses a number of config files, system
-wide, per user and per repository (see the git-config man page for more info).
+wide, per user and per repository (see the git config man page for more info).
 As a minimum you should set the following options:
 \begin{verbatim}
-$ git-config --global user.name "Your Name"
-$ git-config --global user.email "my@email.com"
+$ git config --global user.name "Your Name"
+$ git config --global user.email "my@email.com"
 \end{verbatim}
 These options are written in ~/.gitconfig, and are used by git to ensure that
 your commit messages are sensible, since user names and mail addresses are not
 necessarily set properly on all machines. In addition you might want to enable
 the following options as well:
 \begin{verbatim}
-$ git-config --global color.branch auto
-$ git-config --global color.status auto
-$ git-config --global color.diff false
+$ git config --global color.branch auto
+$ git config --global color.status auto
+$ git config --global color.diff false
 \end{verbatim}
 In order to save space you can also enable compression
 \begin{verbatim}
-$ git-config --global core.compression 1
-$ git-config --global core.loosecompression 1
+$ git config --global core.compression 1
+$ git config --global core.loosecompression 1
 \end{verbatim}
 If you want to use some external (graphical) merge tool to resolve conflicts:
 \begin{verbatim}
-$ git-config --global merge.tool meld
+$ git config --global merge.tool meld
 \end{verbatim}
 \texttt{meld} is a fantastic merge tool, and I strongly suggest you have a
 look at it.  Other possibilities are kdiff3 and xxdiff.
 
-Git has many tunable bells and whistles. Please refer to the git-configure
+Git has many tunable bells and whistles. Please refer to the git configure
 man page for a more complete listing of configurable options.
 
 \subsection{Resolving conflicts}
@@ -598,11 +670,11 @@ recommit:
 $ git commit
 \end{verbatim}
 A more convenient way to handle conflicting merges is to configure
-\texttt{git-mergetool} to launch your favourite diff/merge tool:
+\texttt{git mergetool} to launch your favourite diff/merge tool:
 \begin{verbatim}
 # this only needs to be configured once
-$ git-configure --global merge.tool meld
-$ git-mergetool
+$ git configure --global merge.tool meld
+$ git mergetool
 $ git commmit
 \end{verbatim}
 If you are not familiar with the general purpose graphical diff- and merge
@@ -657,20 +729,20 @@ branches. Suppose you want to try out some idea, but you don't know exactly
 how it will work out. Create a new branch from your current working branch and
 check it out:
 \begin{verbatim}
-$ git-branch foobar
-$ git-checkout foobar
+$ git branch foobar
+$ git checkout foobar
 \end{verbatim}
 Now work hard and commit often. If it turns out that everything is good, and
 you want to keep all changes, merge them with your working branch and push
 them to the master:
 \begin{verbatim}
-$ git-checkout work
-$ git-merge foobar
-$ git-push origin work:myuserid
+$ git checkout work
+$ git merge foobar
+$ git push origin work:myuserid
 \end{verbatim}
 Now you can delete the foobar branch for ever and all times
 \begin{verbatim}
-$ git-branch -d foobar
+$ git branch -d foobar
 \end{verbatim}
 If, on the other hand it turn's out that you had a crackpot idea, and you
 don't want to see any of it anymore, delete the branch and all changes,
@@ -682,10 +754,10 @@ and find the commits you like to keep. Every commmit is identified by a long
 SHA1 hash (a long sequence of numbers and letters). Now cherry pick the
 commits you want into the work branch:
 \begin{verbatim}
-$ git-checkout work
+$ git checkout work
 $ gitk foobar &
 # find commit, copy the SHA1 hash with the mouse
-$ git-cherry-pick SHA1
+$ git cherry-pick SHA1
 \end{verbatim}
 Repeat the cherry pick as many times you like. As you see, git gives a lot of
 flexibility by using branches. Just be a bit careful in the beginning not to
@@ -698,7 +770,7 @@ you cannot just checkout the other branch, since then all your local changes
 would get lost (don't worry, git will not allow you to do this). However, you
 might not want to commit your changes either, since they are not ready or
 complete. In situations like this git allows you to temporarily commit your
-changes in a ``stash''. Running \texttt{git-stash} saves your latest changes
+changes in a ``stash''. Running \texttt{git stash} saves your latest changes
 and resets the current branch to it's latest checked in state (the HEAD). When
 you are ready to continue working you just apply changes in the stash.
 \begin{verbatim}
@@ -728,14 +800,14 @@ individual objects in the database into a \emph{pack} file, which stores only
 the differences between revisions. Once the pack has been generated, all the
 old objects are unnecessary and can be pruned:
 \begin{verbatim}
-$ git-repack
-$ git-prune
+$ git repack
+$ git prune
 \end{verbatim}
 In fact, git has a simpler command which will do this in one go, and
 perform additional optimisations on the repository. To ``garbage collect'' and
 fully optimise your repository run
 \begin{verbatim}
-$ git-gc --prune --aggressive
+$ git gc --prune --aggressive
 \end{verbatim}
 
 \subsection{Exporting a repository}
@@ -744,13 +816,13 @@ you certainly don't want to include the whole repository in the package. One
 way to do this is to simply make a copy of the repository, checkout the right
 branch, clean out all
 generated and unnecessary files, delete the .git directory and make a tar
-file. This process is much simplified using the \texttt{git-archive} which
+file. This process is much simplified using the \texttt{git archive} which
 will create a .tar or .zip file of the wanted revision on the fly
 \begin{verbatim}
 # to create a uncompressed archive
-$ git-archive --prefix=myprog-1.42/ HEAD >../myprog_1.42.tar
+$ git archive --prefix=myprog-1.42/ HEAD >../myprog_1.42.tar
 # compressed archive are also trivial
-$ git-archive --prefix=myprog-1.42/ HEAD |gzip -c >../myprog_1.42.tgz
+$ git archive --prefix=myprog-1.42/ HEAD |gzip -c >../myprog_1.42.tgz
 \end{verbatim}
 This creates an archive of the latest version (HEAD) on the current branch.
 You can specify any branch specifier or tag you like to export some other
@@ -766,14 +838,14 @@ back and figure out where and when the bug was introduced. Fortunately git has
 a very clever mechanism to aid us in the process, using the command
 \texttt{git bisect}. The way it work is by tagging a starting revision as bad,
 and then tag some \textit{known, working} revision as good.
-\texttt{git-bisect} will checkout a new revision, and then you compile, test
+\texttt{git bisect} will checkout a new revision, and then you compile, test
 and mark it as either good or bad. A few of these cycles, and the offending
 revision is found! Here is the process:
 
 \begin{verbatim}
-$ git-bisect start 
-$ git-bisect bad # current rev is bad
-$ git-bisect good version-1.21 # tagged version 1.21 works, guaranteed!
+$ git bisect start 
+$ git bisect bad # current rev is bad
+$ git bisect good version-1.21 # tagged version 1.21 works, guaranteed!
 # now git will checkout a new revision 
 $ make; test.sh 
 # bad?
@@ -785,14 +857,14 @@ In fact, git will allow you to automate the whole process! If your test script
 can determine if a version is working or not, then just let your script return
 0 if the revision is working and 1 it's bad, and run
 \begin{verbatim}
-$ git-bisect start 
-$ git-bisect run ./test.sh
+$ git bisect start 
+$ git bisect run ./test.sh
 \end{verbatim}
 So, now that you have found the offending revision you probably want to go 
 back to the latest revision and start debugging properly. To do this just
 execute
 \begin{verbatim}
-$ git-bisect reset
+$ git bisect reset
 \end{verbatim}
 
 \subsection{Undoing commits and resetting}
@@ -800,17 +872,17 @@ Sometimes we screw up. It's embarrassing. And we don't want anybody to know
 about it. Like committing something we should not have, or even worse,
 misspelling a commit message. Whatever. Or maybe we want to undo a merge or a
 pull which screwed up our repository, causing tons of conflicts or breaking
-things badly. There are two commands for undoing commits, \texttt{git-revert}
-and \texttt{git-reset}. These two differ in the sense that \texttt{git-revert}
+things badly. There are two commands for undoing commits, \texttt{git revert}
+and \texttt{git reset}. These two differ in the sense that \texttt{git revert}
 will undo changes in a controlled, and in itself undoable manner, whereas
-\texttt{git-reset} resets the branch to a specified state invisibly and
+\texttt{git reset} resets the branch to a specified state invisibly and
 without possibility to go back. Ever. Your call.
 
 Suppose you have been working for a while, committing regularly, and after a
 while you realise that everything you have done the last few commits is utter
 garbage, and you want to go back 3 revisions and start over:
 \begin{verbatim}
-$ git-revert HEAD~3
+$ git revert HEAD~3
 \end{verbatim}
 This resets your working copy to the specified revision, and makes commits the
 changes the revert introduced. Hence, you can go back when you realise that
@@ -857,14 +929,14 @@ The default remote repository is
 called 'origin', but you can attach as many remotes as you like. To register a
 new remote repository, simply run
 \begin{verbatim}
-$ git-remote add <name> <myserver>:/path/to/git/proj.git
+$ git remote add <name> <myserver>:/path/to/git/proj.git
 \end{verbatim}
 
 Now when you fetch, pull and push use your new remote-tag {\tt <name>} instead 
 of {\tt origin} to the corresponding command. The new development cycle will
 typically be something like
 \begin{verbatim}
-$ git-pull origin master
+$ git pull origin master
 # do some work
 $ git push myremote mybranch:mybranch
 # or to push all branches automatically
@@ -885,87 +957,28 @@ $ cd /path/to/repos
 $ mkdir $USER
 $ git clone -s -l --bare proj.git $USER/proj.git
 $ cd $USER/proj.git 
-$ git-branch -a 
+$ git branch -a 
 # remove any branches and tags you do not care about
-$ git-branch -D <branch branch...>
-$ git-tag -d <tag tag...>
+$ git branch -D <branch branch...>
+$ git tag -d <tag tag...>
 # edit description (for gitweb) to your liking 
 $ vi description
 \end{verbatim}
-The -s and -l options to {\tt git-clone} will cause git to set up the
+The -s and -l options to {\tt git clone} will cause git to set up the
 repository to use the master's object database as much as possible, so that it
 will take up very little space. 
 
+\subsection{Cleaning up commits using rebase}
+To be written\ldots
 
-%\subsection{Cleaning up commits using rebase}
-%To be written\ldots
+\section{Configuring the git web interface}
+To be written\ldots
 
-\section{Using git for collaboration}
-Revision management goes well beyond just source code management for a group
-of programmers. Revision management is useful for most tasks which are
-expected to evolve with time, like for example manuscripts.
-Since git is very easy to set up, and supports a wide range of communication
-protocols, git can be useful for many collaborative tasks. In the following
-section we will examine how git can be used to collaborate in a highly
-disconnected environment, where none of the participants have access to a
-common server or each others machines. This is a typical situation which
-arises for shorter term projects, like when collaborating on a scientific
-manuscript. To facilitate this situation git offers a powerful e-mail facility
-for communication changes.
+\section{Git administration}
+To be written\ldots
 
-Suppose you are working on a LaTeX manuscript and you want to have the whole
-manuscript under revision control:
-\begin{verbatim}
-$ cd ~/tex/manus/
-$ git init
-$ git add manus.tex fig1.ps fig2.ps
-$ git commit
-\end{verbatim}
-That's it! Now you can work happily, and remember commit every now and then so
-that you always can go back in history if you need to. 
+\section{Git internals for Normal People (tm)}
+To be written\ldots
 
-At the point when you are ready to send the manuscript to your collaborators,
-you can either clone your repository in /tmp to obtain a clean copy, or just
-clean out all unnecessary files. Then make an archive of the whole archive and
-send it by email to your collaborators\footnote{If the file is very big it's
-probably better to provide a (hidden) link to your home page, as many mail
-servers will not accept excessively large files}. 
-\begin{verbatim}
-$ cd /tmp
-$ git clone ~/tex/manus
-$ tar vfcz ~/tex/manus.tgz manus
-$ rm -rf manus
-# mail and attach ~/tex/manus.tex
-\end{verbatim}
-
-Now you and your collaborators continue to work the manuscript. After some
-time, and a number of commits, it's time to share your changes with the 
-others. The first step is to identify the commits you want to send. The
-commits can easily be identified by running \texttt{git log}. Suppose you have
-made 3 commits since you last distributed your changes:
-\begin{verbatim}
-$ git format-patch -3
-\end{verbatim}
-This creates 3 patch files in the current directory, which now can be attached
-and sent to your collaborators using your favourite mailer. Alternatively you
-can use \texttt{git-send-email} to do the job.
-\begin{verbatim}
-$ git-send-email --subject '[patch] my latest changes' --to foo@bar.org \
---cc raboof@foobar.edu --cc myself@myhost.net *.patch
-$ rm *.patch
-\end{verbatim}
-\texttt{git-send-mail} can also be configured using \texttt{git-configure} to
-avoid having to write the long command line every time.
-
-When you receive changes from your collaborators by e-mail, just save the
-mail(s) in your project directory and apply the changes:
-\begin{verbatim}
-$ git-am --3way mailfile(s)
-$ rm mailfile(s)
-\end{verbatim}
-It might be a good idea to create and switch to a temporary branch before 
-applying the patches, since this gives you better possibility to inspect the 
-changes before merging them with your main branch. Obviously, if there is a
-conflict it has to be resolved in the normal manner.
 \end{document}
 
