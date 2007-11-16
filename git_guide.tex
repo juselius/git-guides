@@ -138,7 +138,7 @@ else! The division into master and client is really quite blurred and
 artificial in git.  When you clone a repository, the new copy will contain
 administrative information in .git/config about where it was cloned from, and
 have a slightly modified branch structure (as you will see), but apart from
-this it's identical to it's parent. And where we humans can't choose nor
+this it's identical to its parent. And where we humans can't choose nor
 change who our parents are, git has no problem in changing or removing the
 parent(s).
 
@@ -154,6 +154,7 @@ A commit does not make your changes public. The commits are local to your
 repository, and unless you let somebody clone or pull changes from you,
 they will remain hidden until you decide to publish them by pushing them
 to a common server, or until you let somebody pull them from you.
+(RADOVAN: the "let somebody pull them from you" is repeated)
 
 \section{Basic git}
 The most basic operation under a revision control system is saving the sate of
@@ -289,6 +290,7 @@ $ git rm myfile
 \end{verbatim}
 Note that this does not delete the file permanently, since going back to a
 previous revision will bring it back (as it should).
+(RADOVAN: they are deleted permanently but not irrevocably)
 
 \section{Working with remote repositories}
 Even though revision control can be very useful in an one-man universe, it's
@@ -296,7 +298,7 @@ when collaborating with others that git reveals it's true power and strength.
 The two basic operations when working with a remote repository are the pull
 and push operations, to retrieve and publish changes respectively. Still, it's
 good to keep in mind that your own repository is a full fledged repository,
-even when you are are working with a remote repository. The only difference to
+even when you are working with a remote repository. The only difference to
 the ``master'' repository is that a symbolic pointer called ``origin'' is set
 up to point back to where the repository was cloned from\footnote{You can in
 fact set up multiple remote repositories if you like, see \Ref{sec:remotes}}.
@@ -329,7 +331,7 @@ tracking branches, not your working branches!  Never, ever, checkout a remote
 branch directly unless you absolutely want trouble. 
 
 \subsection{Tracking remote branches}
-In order to incorporate changes in in remote branches you need to merge your
+In order to incorporate changes in remote branches you need to merge your
 working copy with the remote branch, e.g. 
 \begin{verbatim}
 $ git checkout mybranch
@@ -357,12 +359,12 @@ $ git checkout foobar
 At some point you will hopefully have produced a nice set of commits, leading
 up to something you find worthy of sharing with others. Before you
 push your changes to the remote server it is essential that you make sure that 
-you are in synch with the branch you are going to push to. For a push to work
+you are in sync with the branch you are going to push to. For a push to work
 it must result in a so called fast-forward merge.
 Fast-forward means that the files you want to merge with another branch, must
 have the files in the other branch as parents.  Simply stated, the files on
 the other branch must not have changed since the last pull. If a push fails
-because it’s not fast-forward, you must first fetch, merge and possible
+because it is not fast-forward, you must first fetch, merge and possible
 resolve any conflicts before (re)doing the push.
 
 When pushing changes I recommend being very explicit in order to avoid any
@@ -456,6 +458,7 @@ than a few big commits as you will see in \Ref{sec:cherry}.
 \label{sec:examine}
 When working with many files it can be very convenient to refresh ones memory
 of which files have changed since the last commit. If you run
+(RADOVAN: sentence is a bit strange, clear what it wants to say, but maybe rephrase)
 \begin{verbatim}
 $ git status
 \end{verbatim}
@@ -475,7 +478,7 @@ files and file patterns (one per line) that you want to ignore:
 \end{verbatim}
 It's usually a good idea to place this file under revision control too.
 
-\subsubsection{Examining logs and changes}
+\subsection{Examining logs and changes}
 Often it's nice to be able to browse the commit logs on a branch, either
 to identify a particular commit or to just see what others might have
 committed. To view the commit log run
@@ -525,7 +528,7 @@ Quite often one has a need to search all or some of the files in a source
 tree for a particular string. Of course, it's reasonably simple to quickly
 filter the relevant files on the command line and \texttt{grep} for the
 string. Things become substantially more complicated if you want to search in 
-an older revision. Luckily git has a simple solution:
+an older revision. Luckily, git has a simple solution:
 \begin{verbatim}
 $ git grep regexp 
 \end{verbatim}
@@ -744,13 +747,13 @@ Now you can delete the foobar branch for ever and all times
 \begin{verbatim}
 $ git branch -d foobar
 \end{verbatim}
-If, on the other hand it turn's out that you had a crackpot idea, and you
+If, on the other hand it turns out that you had a crackpot idea, and you
 don't want to see any of it anymore, delete the branch and all changes,
 commits and everything on the branch will be gone for ever! No trace of it.
 But what if there are partially useful changes to foobar that you want to
 keep, before discarding the rest? Well that's when small commits are useful
-because you can cherry pick! Chekout your work branch, fire up gitk on foobar,
-and find the commits you like to keep. Every commmit is identified by a long
+because you can cherry pick! Checkout your work branch, fire up gitk on foobar,
+and find the commits you like to keep. Every commit is identified by a long
 SHA1 hash (a long sequence of numbers and letters). Now cherry pick the
 commits you want into the work branch:
 \begin{verbatim}
