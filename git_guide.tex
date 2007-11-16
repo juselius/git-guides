@@ -153,8 +153,7 @@ $ git commit -a
 A commit does not make your changes public. The commits are local to your
 repository, and unless you let somebody clone or pull changes from you,
 they will remain hidden until you decide to publish them by pushing them
-to a common server, or until you let somebody pull them from you.
-(RADOVAN: the "let somebody pull them from you" is repeated)
+to a common server.
 
 \section{Basic git}
 The most basic operation under a revision control system is saving the sate of
@@ -288,9 +287,8 @@ If you want to delete a file or directory use
 \begin{verbatim}
 $ git rm myfile
 \end{verbatim}
-Note that this does not delete the file permanently, since going back to a
+Note that this does not delete the file irrevocably, since going back to a
 previous revision will bring it back (as it should).
-(RADOVAN: they are deleted permanently but not irrevocably)
 
 \section{Working with remote repositories}
 Even though revision control can be very useful in an one-man universe, it's
@@ -456,19 +454,21 @@ than a few big commits as you will see in \Ref{sec:cherry}.
 
 \section{Examining repositories}
 \label{sec:examine}
-When working with many files it can be very convenient to refresh ones memory
-of which files have changed since the last commit. If you run
-(RADOVAN: sentence is a bit strange, clear what it wants to say, but maybe rephrase)
+Every now and then, on a more or less daily basis, I tend to forget which
+files I have modified so far. This frequently happens during debugging
+sessions, where you easily end up all over the place in the hunt for the
+offending piece of code. Then it can be highly convenient to get a listing 
+of files which have changed since the last commit. If you run
 \begin{verbatim}
 $ git status
 \end{verbatim}
 you will get a compact status report of which files have modifications, which
 files are not under revision control and files staged for a commit (with
-git add) but not committed yet. Often you have a bunch of files that should
-not be under revision control and that you really don't care about, e.g.
-object files and the like. To avoid having git status always list these files
-you can edit the file \texttt{.gitignore} in the project directory and list
-files and file patterns (one per line) that you want to ignore:
+\texttt{git add}) but not committed yet. Often you have a bunch of files that
+should not be under revision control and that you really don't care about,
+e.g.  object files and the like. To avoid having git status always list these
+files you can edit the file \texttt{.gitignore} in the project directory and
+list files and file patterns (one per line) that you want to ignore:
 \begin{verbatim}
 # example .gitignore file
 *.[oa]
@@ -971,17 +971,17 @@ The -s and -l options to {\tt git clone} will cause git to set up the
 repository to use the master's object database as much as possible, so that it
 will take up very little space. 
 
-\subsection{Cleaning up commits using rebase}
-To be written\ldots
+%\subsection{Cleaning up commits using rebase}
+%To be written\ldots
 
-\section{Configuring the git web interface}
-To be written\ldots
+%\section{Configuring the git web interface}
+%To be written\ldots
 
-\section{Git administration}
-To be written\ldots
+%\section{Git administration}
+%To be written\ldots
 
-\section{Git internals for Normal People (tm)}
-To be written\ldots
+%\section{Git internals for Normal People (tm)}
+%To be written\ldots
 
 \end{document}
 
