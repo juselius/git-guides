@@ -30,11 +30,13 @@
 {\sf N-9037 University of Tromsø, Norway}
 }
 \years{2007}
-\abstract{Rev.1:\\{\tt git clone http://git.jonas.iki.fi/git\_guides.git}\\
+\abstract{Rev 0.3:\\{\tt git clone http://git.jonas.iki.fi/git\_guides.git}\\
 Corrections and improvements are most welcome via e-mail using the
-{\tt git-format-patch} facility.}
+{\tt git format-patch} facility.}
 
 \maketitle
+\tableofcontents
+\newpage
 
 \section{Preliminaries}
 This guide attempts to document one way of migrating both repositories and 
@@ -61,13 +63,6 @@ The second part is intended for the individual developer, documenting how to
 set up git for personal use, and how to safely migrate all uncommitted changes
 from CVS to git.
 
-%The third part of this guide discusses some good practices and aspects of 
-%using git on a daily basis.
-%It also tries to explains some of the differences between git and
-%CVS, which at first sight might be a bit hard to understand. Although git is
-%well documented, some of the documentation is somewhat scattered, or seems to
-%be written for computer scientists.
-
 \subsection{Recommended reading}
 If you have not done so yet, I
 recommend you start by reading the following two short tutorials:
@@ -76,6 +71,8 @@ recommend you start by reading the following two short tutorials:
 \url{http://www.kernel.org/pub/software/scm/git/docs/cvs-migration.html}
 \item[The git tutorial]:\\
 \url{http://www.kernel.org/pub/software/scm/git/docs/tutorial.html}
+\item[Git in a Nutshell]:\\
+  \url{http://git.jonas.iki.fi/gitweb.cgi?p=git_guides.git;a=tree}
 \end{description}
 Furthermore, the following documents may be of use:
 \begin{description}
@@ -99,14 +96,23 @@ I have used the following conventions in this document: Commands are written
 in {\tt typewriter} and anything the user should replace with his/her own 
 options have been enclosed in brackets, e.g. {\tt <mybranch>}.  
 
-ACES2 developers should substitute the following values for these variables
-\begin{description}
-  \item{\tt <myserver>}: {\tt [uid@]feynman.chemie.uni-mainz.de}
-  \item{\tt /path/to/repository.git}: {\tt /mnt/software/git/aces2.git}
-  \item{\tt /path/to/my/repository.git}: 
-	{\tt /mnt/software/git/<myuid>/aces2.git}
-  \item{\tt <myuid>}: Your user id on feynman
-\end{description}
+\section{Before you start}
+This section is intended for administrators and users alike, and is based on
+some of the experience of migrating a bunch of CVS users to git. It seems that
+one of the main problems is for CVS users to grasp the distributed nature of
+git, i.e. the difference between a commit and a push. Users can become very
+confused, and think that git is impossibly complicated to use and understand. 
+
+The very nature of git makes it much more powerful than CVS. Git is allows for
+a lot more flexibility, leading to a different workflow than under CVS.
+Changing two both the source code revision software \emph{and} the working
+paradigm at the same time is a recipe for trouble. It's not git itself that is
+causing the confusion, rather the new way how to use it really efficiently! To
+avoid having grumpy and confused users it's better to do one thing at a time.
+Start by changing from CVS to git, but keep the same working paradigm as
+before. When the users have become comfortable using git, you can implement
+more advanced things like restricted branches and multiple remotes. 
+
 
 \section{Converting your CVS modules to git}
 The general scheme used here for setting up the new git repository is based
@@ -219,7 +225,7 @@ Git has two ways of storing objects in it's database, either as separate
 files or in a packed format storing only differences between files. The packed
 format is for many purposes more efficient than the default storage mode. It's
 therefore a good idea to set up a cron job to traverse all git repositories on
-the master server and run \texttt{git-gc} once per night to pack and clean the
+the master server and run \texttt{git gc} once per night to pack and clean the
 repositories. Obviously the cron job must be set up for a user which has
 sufficient permissions in the repository tree. Edit and copy the git-optimize.sh
 script distributed with this document to your git repository root directory
@@ -256,29 +262,29 @@ browse and clone your code. Your call.
 \subsection{Before you start}
 Before doing anything else, I suggest that you setup some default
 configuration variables for git. Git uses a number of config files, system
-wide, per user and per repository (see the git-config man page for more info).
+wide, per user and per repository (see the git config man page for more info).
 As a minimum you should set the following options:
 \begin{verbatim}
-$ git-config --global user.name "Your Name"
-$ git-config --global user.email "my@email.com"
+$ git config --global user.name "Your Name"
+$ git config --global user.email "my@email.com"
 \end{verbatim}
 These options are written in ~/.gitconfig, and are used by git to ensure that
 your commit messages are sensible, since user names and mail addresses are not
 necessarily set properly on all machines. In addition you might want to enable
 the following options as well:
 \begin{verbatim}
-$ git-config --global color.branch auto
-$ git-config --global color.status auto
-$ git-config --global color.diff false
+$ git config --global color.branch auto
+$ git config --global color.status auto
+$ git config --global color.diff false
 \end{verbatim}
 In order to save space you can also enable compression
 \begin{verbatim}
-$ git-config --global core.compression 1
-$ git-config --global core.loosecompression 1
+$ git config --global core.compression 1
+$ git config --global core.loosecompression 1
 \end{verbatim}
 If you want to use some external (graphical) merge tool to resolve conflicts:
 \begin{verbatim}
-$ git-config --global merge.tool meld
+$ git config --global merge.tool meld
 \end{verbatim}
 Meld is a fantastic merge tool, and I strongly suggest you have a look at it.
 Other valid possibilities are kdiff3 and xxdiff (amongst others).
@@ -348,18 +354,18 @@ Congratulations! Your repository is now in the same state as before the
 switch!
 
 \subsection{Committing your changes}
+The following step in the migration process is to commit all
+your changes in your local repository. Don't worry, you will not mess up
+anything on the master, or even make your changes public yet. This is a
+personal commit so far. 
+
 Before you add changes (and files) to
 commit you should probably think closely about how changes are logically
 related and how they could be grouped into sets, instead of committing
 everything as one big blob. It's better to have many, many small commits than
 a few big ones, since this helps picking out particular patch sets and
 applying them to other branches (this is known as cherry picking).
-
-\begin{description}
-\item[Commit] The following step in the migration process is to commit all
-your changes in your local repository. Don't worry, you will not mess up
-anything on the master, or even make your changes public yet. This is a
-personal commit so far. There is a convenient tool to pick, group and commit 
+There is a convenient tool to pick, group and commit 
 your changes
 \begin{verbatim}
 $ git citool
@@ -383,25 +389,159 @@ You can also just run
 $ git commit -a
 \end{verbatim}
 to do what you probably should not, i.e. commit everything as one huge commit.
-\end{description}
 
-\subsection{Working with the master server}
-Now that all your changes have been safely committed it's time to push them to
-the master server so that others can see your changes, and for backup. Don't
-worry, things have been set up such that you can't mess up the master
-repository. 
-The master repository has been set up with a number of default branches. 
-In the (hopefully near) future a testing branch will be set up, as a staging area for
-code that you want to have included in the main master branch. The code in
-this branch will be checked out nightly and run through the test suite. If the
-tests run cleanly, the code will be considered eligible for inclusion in the
-master branch.
-In addition every developer has the possibility to cerate their own branch on
-the master (note that it's not created by default).  You can only commit
-branches and tags which have names that start with your user id. 
 
-\begin{description}
-\item[Creating a remote branch] To create a new branch on a remote server, git
+\section{Getting started with git}
+Ok, so now all your changes have been safely committed in your local
+repository. The big difference to CVS is that commits are not automatically
+communicated to the master server. How to communicate your changes to the
+master will depend on how the master has been set up. The two following
+sections will explain how to get started with git, and how to communicate with
+the master repository.
+
+\subsection{Using git like CVS}
+Here I will outline how to use git in a CVS-like fashion, without having
+to bother with branches and other complications. For completeness I have
+included how to clone a repository.
+The corresponding cvs commands are included as an example. 
+
+\begin{enumerate}
+\item To get a local copy of the source repository:
+\begin{verbatim}
+[ cvs checkout -d :ext:mylogin@myserver:/path/to/CVSROOT myproj ]
+$ git clone mylogin@myserver:/path/to/repository/myproj.git 
+\end{verbatim}
+
+\item Updating the source repository to get the latest changes from the
+master:
+\begin{verbatim}
+[ cvs update ]
+$ git pull origin master
+\end{verbatim}
+
+\item Checking in your changes on the master:
+\begin{verbatim}
+[ cvs update ]
+[ cvs checkin file1 file2 ...]
+
+$ git pull origin
+$ git commit file1 file2 ...
+$ git push origin master
+\end{verbatim}
+
+This is where git differs from CVS substantially, committing a file
+commits it to your local repository, and pushing it transfers it to the
+master. Note that before you can push anything it has to be committed! 
+A more useful way of working is:
+\begin{verbatim}
+... work
+$ git commit file1 file2 ...
+... work
+$ git commit fileN dir2 ... 
+... work
+$ git commit -a  # (commits everything)
+... ok, we are ready with a new feature
+$ git pull origin master
+$ git push origin master 
+\end{verbatim}
+
+If you get a conflict when you pull, please consult the Nutshell guide
+how to resolve it.
+
+\item Common tasks:
+\begin{enumerate}
+  \item How to add a file:
+\begin{verbatim}
+[ cvs add file1 ... ]
+$ git add file1 ...
+\end{verbatim}
+
+\item How to delete a file:
+\begin{verbatim}
+[ cvs remove file1 ]
+$ git rm file1 
+\end{verbatim}
+
+\item How to move or rename a file:
+\begin{verbatim}
+[ CVS cannot do this ]
+$ git mv file1 file2
+\end{verbatim}
+
+\item How to restore a file which you have deleted:
+\begin{verbatim}
+[ cvs update ]
+$ git checkout file1 
+\end{verbatim}
+\end{enumerate}
+\end{enumerate}
+
+\subsection{Git vs. CVS}
+Git is not very different from CVS for everyday use, although it may at first
+seem so! There are really only two things that differ dramatically from CVS;
+your working copy is a full repository, hence the separation of making a
+commit and communicating the commit(s). The other big difference is that git
+keeps track of the state of a whole repository, not single files.
+
+It's important to understand that a commit under git is exactly the same thing
+as under CVS, even if it's local to you until you push.  When you push git
+will update the remote branch (master in this case) to be in the exact same
+state as your repository. This means that if you have 12 commits which are not
+on the remote server, then all those 12 commits will be communicated!  Under
+CVS you would have made 12 commits directly to the server, under git you can
+commit any number of times, and when you think it's appropriate you push them
+all in one batch to the server. 
+
+In the old, comfy realm of CVS you would work, work, work
+and never commit until you had something you really needed or had to
+commit, like a bugfix in one file in some module. You can do exactly the same
+with git! Never commit anything until you have something you really
+need to commit. Then you do the following:
+
+\begin{verbatim}
+# first make sure we are up-to-date
+$ git pull origin master 
+# commit CVS style
+$ git commit file1 file2 ... fileN
+$ git push origin master
+\end{verbatim}
+
+This is identical behaviour compared to CVS, except for the fact that you
+explicitly need to communicate the changes to your 'origin'. 
+
+Of course, now I will argue that working like in the old CVS world is
+not very good. For one thing, it's important to commit often, since
+this way you get a much better work log/history and it's makes tracking
+down bugs a lot easier. Furthermore, when you accidentally delete a
+file, you can always get a reasonably new version back (if you have no
+daily backups of your work area). 
+
+Now the problem arises; you need to publish a small fix, but you have a
+lot of commits, and the code is not ready for the public yet. This is
+one place where branches are very convenient: 
+\begin{itemize}
+\item If you have not fixed the
+problem yet, create a new temporary branch (call it fix or whatever),
+checkout the branch, fix the problem, commit, push to the master,
+checkout your working branch, pull the fix from the master, delete the
+fix branch. 
+\item On the other hand, if you already have fixed and committed
+the fix, the procedure is almost the same, but with one difference:
+Create and checkout the fix branch, use 'gitk' or 'git log' to find the
+SHA1-number of the commit which fixed the problem, then use 'git
+cherry-pick SHA1-number' to incorporate that commit and nothing else
+into the fix branch, push to the master, checkout the working branch and
+delete the fix branch.
+\end{itemize}
+
+\subsection{Working with remote servers}
+In the setup outlined above, every developer has the
+possibility to cerate their own branch on the master (note that it's not
+created by default). You can only commit branches and tags which have names
+that start with your user id. 
+
+\subsubsection{Creating a remote branch} 
+To create a new branch on a remote server, git
 requires a very explicit syntax. After you have created the branch, you can
 use the same syntax as when operating on local branches. To create a remote 
 branch and push your changes in the migration branch to it, do
@@ -410,7 +550,8 @@ $ git push origin migration:refs/heads/<muid>
 \end{verbatim}
 where {\tt <myuid>} is your login on the server.
 
-\item[Fetching changes] To follow what others are doing and incorporating
+\subsubsection{Fetching changes} 
+To follow what others are doing and incorporating
 their latest changes you need to regularly fetch their changes. git is very
 flexible in the ways you can do things, so consult the man pages for more
 info. To download all changes from the master run
@@ -418,8 +559,8 @@ info. To download all changes from the master run
 $ git fetch origin 
 \end{verbatim}
 This downloads all remote branches and stores them in your remote tracking
-branches (use {\tt git-branch -r} to see them). {\tt git-fetch} does not merge any changes
-into your working branches. After the git-fetch you can examine the changes to
+branches (use {\tt git branch -r} to see them). {\tt git fetch} does not merge any changes
+into your working branches. After the git fetch you can examine the changes to
 the remote branches using e.g. {\tt gitk --all} or 
 {\tt git [log/diff] origin/master}.
 To update your current branch with e.g. the remote master branch do
@@ -427,7 +568,8 @@ To update your current branch with e.g. the remote master branch do
 $ git merge origin/master
 \end{verbatim}
 
-\item[Pulling changes] There is a much easier way of updating your branches
+\subsubsection{Pulling changes} 
+There is a much easier way of updating your branches
 from the master server:
 \begin{verbatim}
 $ git pull origin master
@@ -437,7 +579,8 @@ merges it with your current branch. This is more or less the git equivalent of
 {\tt cvs update}. Note that this only fetches the specified branch from the
 server. If you want all changes on all branches use the fetch command above.
 
-\item[Push] To publish changes to a branch so that others can see them and
+\subsubsection{Push} 
+To publish changes to a branch so that others can see them and
 alternatively merge them with their branches you must push them to the main
 server. This is in a sense the git equivalent of a {\tt cvs commit}. 
 To upload a
@@ -445,7 +588,7 @@ branch and merge it with your personal branch on the server, do
 \begin{verbatim}
 $ git push origin somebranch:<myuid>
 \end{verbatim}
-For more details see the git-push man page. Note that for a push to work, it
+For more details see the git push man page. Note that for a push to work, it
 must result in a so called fast-forward-merge. Fast-forward means that the
 files you want to merge on another branch, must have the files in the other
 branch as parents. Simply stated, the files on the other branch have not
@@ -454,7 +597,8 @@ you must first do a {\tt git pull origin branch} and resolve any conflicts
 before
 (re)doing the push.
 
-\item[Tagging] To create a tag, simply run {\tt git-tag <tagname>}. To push
+\subsubsection{Tagging} 
+To create a tag, simply run {\tt git tag <tagname>}. To push
 your tags to the main server, do
 \begin{verbatim}
 $ git push --tags origin 
@@ -471,13 +615,20 @@ To delete a tag on the master you need to explicitly push an empty tag
 $ git push origin :refs/tags/<myuid>/<mytag>
 \end{verbatim}
 
-\item[Deleting a remote branch] If you for some reason want to delete a branch
+\subsubsection{Deleting a remote branch} 
+If you for some reason want to delete a branch
 on the remote server, just push an empty branch to the remote branch:
 \begin{verbatim}
 $ git push origin :<branch>
 \end{verbatim}
-\end{description}
 
+Since branches come and go, both in {\tt origin} and in your own remote(s)
+it's a good idea to clean up the remotes once in a while by doing a
+\begin{verbatim}
+$ git remote prune origin
+\end{verbatim}
+
+\subsection{Adding a remote repository}
 If you want to have more
 flexibility, more branches and tags (on the server) and more freedom
 generally, you can also set up your own personal repository on the master. git
@@ -490,47 +641,32 @@ $ cd /path/to/repos
 $ mkdir $USER
 $ git clone -s -l --bare proj.git $USER/proj.git
 $ cd $USER/proj.git 
-$ git-branch -a 
+$ git branch -a 
 # remove any branches and tags you do not care about
-$ git-branch -D <branch branch...>
-$ git-tag -d <tag tag...>
+$ git branch -D <branch branch...>
+$ git tag -d <tag tag...>
 # edit description (for gitweb) to your liking 
 $ vi description
 \end{verbatim}
-The -s and -l options to {\tt git-clone} will cause git to set up the
+The -s and -l options to {\tt git clone} will cause git to set up the
 repository to use the master's object database as much as possible, so that it
 will take up very little space. 
 
 Now on your local machine, cd to your development repository and register the 
 new remote:
 \begin{verbatim}
-$ git-remote add <name> <myserver>:/path/to/repos/<myuid>/proj.git
+$ git remote add <name> <myserver>:/path/to/repos/<myuid>/proj.git
 \end{verbatim}
 Now when you fetch, pull and push use your new remote-tag {\tt <name>} instead 
 of {\tt origin} to the corresponding command. The new development cycle will
 typically be something like
 \begin{verbatim}
-$ git-pull origin master
+$ git pull origin master
 # do some work
 $ git push myremote mybranch:mybranch
 # or to push all branches automatically
 $ git push --all myremote 
 \end{verbatim}
-
-Since branches come and go, both in {\tt origin} and in your own remote(s)
-it's a good idea to clean up the remotes once in a while by doing a
-\begin{verbatim}
-$ git-remote prune origin
-$ git-remote prune <myremote>
-\end{verbatim}
-
-%\section{Working with git}
-%To be written\ldots
-%o gitweb
-%o diff
-%o status
-%o branches and master -> why push
-%o how to track masters master
 
 \section{Useful git commands}
 Here is a short list of useful git commands to familiarise yourself with when
@@ -540,26 +676,26 @@ give you all available information on a particular command.
 \item{\tt gitk} Graphical interface for browsing repositories.
 \item{\tt qgit} Graphical interface for browsing repositories. Better and more
 advance than gitk, but probably not installed on your system by default.
-\item{\tt git-diff} View differences between your working copy and a committed
+\item{\tt git diff} View differences between your working copy and a committed
 revision (and more).
-\item{\tt git-gc} By default git will store all objects in a very primitive
+\item{\tt git gc} By default git will store all objects in a very primitive
 and storage inefficient way. This command packs, compresses and prunes
 unreachable objects in the object database. {\bf Should be used regularly}.
-\item{\tt git-stash} If you need to checkout a new branch, but don't want to
+\item{\tt git stash} If you need to checkout a new branch, but don't want to
 commit your changes, stash allows you to temporarily save your changes. Only
 in git 1.5.3 and newer.
-\item{\tt git-cherry-pick} Instead of merging two complete branches, only pick the
+\item{\tt git cherry-pick} Instead of merging two complete branches, only pick the
 commits you really want from a branch.
-\item{\tt git-bisect} Find a commit which introduced some nasty bug. Very
+\item{\tt git bisect} Find a commit which introduced some nasty bug. Very
 helpful.
-\item{\tt git-log} View the commit history on a branch
-\item{\tt git-archive} Create a tar or zip archive from a branch.
-\item{\tt git-mv} Rename files in the repository.
-\item{\tt git-rm} Delete files from the repository.
-\item{\tt git-annotate} Show who changed what and when in files.
-\item{\tt git-format-patch} Generate an patch file of a commit, suitable for
+\item{\tt git log} View the commit history on a branch
+\item{\tt git archive} Create a tar or zip archive from a branch.
+\item{\tt git mv} Rename files in the repository.
+\item{\tt git rm} Delete files from the repository.
+\item{\tt git annotate} Show who changed what and when in files.
+\item{\tt git format-patch} Generate an patch file of a commit, suitable for
 sending by e-mail
-\item{\tt git-am} Apply a patch from a mailbox
+\item{\tt git am} Apply a patch from a mailbox
 
 \end{description}
 
