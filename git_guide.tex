@@ -126,7 +126,9 @@ repository in the current directory.
 
 Git is quite different from CVS in most respects. When you clone a repository
 you get the WHOLE repository, everything, not just a working copy like in CVS!
-\texttt{git clone} is almost the same as doing a
+\texttt{git clone} is in principle almost the same as doing a\footnote{
+Actually git clone is a bit more selective, and it also sets up various
+administrative information, etc.} 
 \begin{verbatim}
 $ scp -r me@myserver:/path/to/myrepo .
 \end{verbatim}
@@ -189,9 +191,9 @@ much first do a checkout
 $ git checkout foobar
 \end{verbatim}
 This command switches to the new branch, and updates the files in the source
-tree to the current HEAD of the branch. HEAD is a symbolic tag representing
-the latest revision on a branch. For more detailed information on how to
-specify revisions see \Ref{sec:revision}.
+tree to the HEAD of the branch (HEAD is a symbolic tag representing
+the current branch). For more detailed information on
+how to specify revisions see \Ref{sec:revision}.
 
 The checkout command is thus very
 different from the \texttt{cvs checkout} command.
@@ -214,6 +216,7 @@ to get back that information. So be sure that you are not throwing away
 something you might want to save.
 
 \subsection{Merging}
+\label{sec:merge}
 Obviously branches would be very cumbersome to work with unless it would be
 nearly trivial to incorporate changes in one branch into another. Git provides
 two main ways\footnote{Actually, there is a third way called rebasing, but
@@ -251,6 +254,10 @@ $ git branch $USER/work
 $ git branch $USER/crazy_stuff
 ...
 \end{verbatim}
+
+As a last point, it's actually possible to merge many branches in one merge
+operation.  Such a merge is called an octopus merge, see the
+\texttt{git-merge} man page for more info.
 
 \subsection{Tags}
 Tagging is a way of specifying a symbolic name to a specific revision (state) 
@@ -712,7 +719,7 @@ certain revision, some which we have seen already:
 \end{enumerate}
 The two first forms are pretty obvious, but the others need a bit of
 explanation. The symbolic name HEAD will always be a tag which points to the
-latest revision on a particular branch. HEAD is mostly useful to specify
+latest revision on the current branch. HEAD is mostly useful to specify
 older revisions relative to it. There are a number of ways to specify
 a relative revision, e.g to specify the parent revision (i.e. one below HEAD)
 \begin{verbatim}
@@ -722,8 +729,11 @@ The general syntax is
 \begin{verbatim}
 git show <HEAD|tag|branch|SHA1>~N
 \end{verbatim}
-Some shells interact poorly with the '\verb ~ ' and a '\verb ^ ' 
-can be used instead.
+There is also another way of specifying relative revisions by using a 
+'\verb ^ '  instead of '\verb ~ '. These are equivalent, \emph{except} in the
+case when more than two branches have been merged simultaneously in a so
+called octopus merge (see \Ref{sec:merge}). For the exact explanation see
+the \texttt{git-rev-parse} man page.
 
 Every commit (every object in fact) is internally identified by a
 cryptography-strength one-way SHA1 hash consisting of 40 hexdigits, which
@@ -909,8 +919,9 @@ pull which screwed up our repository, causing tons of conflicts or breaking
 things badly. There are two commands for undoing commits, \texttt{git revert}
 and \texttt{git reset}. These two differ in the sense that \texttt{git revert}
 will undo changes in a controlled, and in itself reversible manner, whereas
-\texttt{git reset} resets the branch to a specified state invisibly and
-without possibility to go back. Ever. Your call.
+\texttt{git reset} resets the branch to a specified state without leaving any
+trace in the history. Even if you reset, it's still possible to recover
+the ``lost'' commits through the reflog facility (see below). 
 
 Suppose you have been working for a while, committing regularly, and after a
 while you realise that everything you have done the last few commits is utter
@@ -946,6 +957,12 @@ go two revisions back, and at the same time also reset your working copy to
 that state:
 \begin{verbatim}
 $ git reset --hard HEAD~2
+\end{verbatim}
+If you for some reason suddenly realise that the reset was a mistake, and you
+want to go back to where you were before the reset, you can 
+reset back to the reflog HEAD:
+\begin{verbatim}
+$ git reset --hard HEAD@{1}
 \end{verbatim}
 
 \subsection{Working with multiple remotes}
