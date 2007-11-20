@@ -379,11 +379,16 @@ up to something you find worthy of sharing with others. Before you
 push your changes to the remote server it is essential that you make sure that 
 you are in sync with the branch you are going to push to. For a push to work
 it must result in a so called fast-forward merge.
-Fast-forward means that the files you want to merge with another branch must
-have the files in the other branch as parents.  Simply stated, the files on
-the other branch must not have changed since the last pull. If a push fails
+
+\emph{Fast-forward}\index{fast-forward} means that the files the files on
+the other branch have not changed since the last pull. If a push fails
 because it is not fast-forward, you must first fetch, merge and possible
 resolve any conflicts before (re)doing the push.
+%% \index{fast-forward} is probably overkill for such a short
+%% document; if 'fast-forward' is marked as term being defined
+%% then all other definitions/explanations must be marked in 
+%% the same way.  Perhaps instead of \emph{Fast-forward} 
+%% \define{Fast-forward} or \explain{Fast-formard} should be used.
 
 When pushing changes I recommend being very explicit in order to avoid any
 surprises, e.g. to push the changes on mybranch to an \emph{existing} branch
@@ -391,6 +396,8 @@ called myuserid in the repository where we cloned from (i.e. origin)
 \begin{verbatim}
 $ git push origin mybranch:myuserid
 \end{verbatim}
+%% Wouldn't it be better to configure remotes for push, with push refspec?
+%%
 If you have created tags that you want to make public you need to push them
 explicitly
 \begin{verbatim}
@@ -426,10 +433,15 @@ Branches come and go. Some branches have very long lifetimes and others just
 exist for a short while. When remote branches get deleted, git does not
 automatically register this when you do a \texttt{git fetch}, it just ignores
 them. Thus, the number of stale remote branches can grow, cluttering the
-branch listings. To get rid of these stale branches simply run 
+branch listings. To get rid of all these stale branches simply run 
 \begin{verbatim}
 $ git remote prune
 \end{verbatim}
+To delete single stale branch you can use
+\begin{verbatim}
+$ git branch -d -r <remote>/<branch>
+\end{verbatim}
+
 
 \subsection{The aim of the game}
 With so many possibilities for organising both repositories and branches it's
@@ -442,6 +454,17 @@ too far away from the master branch, and also to incorporate all bug fixes
 etc. At the same time it's also important to push to the master often and in
 small increments, since this makes it a lot easier for other developers to
 stay in sync with \emph{your} work.
+%%
+%% Is the goal there description of centralized repository (CVS-like)
+%% usage? The cycle: push, if it fails pull (and resolve conflict if
+%% needed), repeat until push succeeds should follow CVS' update, if
+%% it fails resolve conflicts, although with git you can ensure that
+%% commits are small and do not break.
+%%
+%% If it is not the case, perhaps describing a common git model where
+%% main developers have private repository and public repository they
+%% push into (and others pull from), and fringe developers use patches
+%% sent by email would be good idea.
 
 \subsection{A word of advice}
 Git might seem a bit overwhelming in the beginning, so here are
@@ -449,21 +472,24 @@ some recommendations for how to work with git until you get used to it:
 When you clone a remote master repository, you will get a set of remote
 branches (see \Ref{sec:branch} for more info on branches), and one
 local working branch called 'master'. This branch is in the exact state of
-the remote master branch (i.e. origin/master and master are identical). I
+the remote master branch (i.e. 'origin/master' and 'master' are identical). I
 suggest you keep it this way, and create a new working branch for yourself, 
 e.g. 
 \begin{verbatim}
-$ git branch work
-$ git checkout work 
+$ git checkout -b work 
 \end{verbatim}
 Now work like you normally do, and every now and then (every morning for
 example) run
 \begin{verbatim}
 $ git fetch origin
-$ gitk origin/master
+$ gitk origin/master      %% or: gitk ORIG_HEAD..origin/master
 # if you like what you see
-$ git merge origin/master 
+$ git merge origin/master %% or: git pull origin
 \end{verbatim}
+%% Using 'git pull origin' generates (if it is not fast-forward case)
+%% commit message with the URL of remote; 'git merge origin/master'
+%% would generate commit message with name of branch (origin/master).
+%%
 Every time you have made changes which can be considered complete in some
 sense (you know best), do a commit 
 \begin{verbatim}
@@ -473,6 +499,16 @@ $ git commit
 \end{verbatim}
 It's much better with many small commits
 than a few big commits as you will see in \Ref{sec:cherry}.
+%% I guess that more common workflow is
+%% \begin{verbatim}
+%% $ git diff
+%% $ git commit -a
+%% \end{verbatim}
+%% as output of git-status is as comment in buffer when editing commit
+%% message, and git-diff provides review of changes.
+%%
+%% Small commits matters also for commit review, and when finding bug
+%% using bisect, or for git-blame analysiss.
 
 \section{Examining repositories}
 \label{sec:examine}
@@ -499,6 +535,10 @@ list files and file patterns (one per line) that you want to ignore:
 
 \end{verbatim}
 It's usually a good idea to place this file under revision control too.
+%% Perhaps you should mentione here "man gitignore", and that ordering
+%% of rules matters (important when excluding some files from
+%% ignoring). Also fo note is fact that patterns and names match
+%% basename (file name part) of filename, unless there is '/' in it.
 
 \subsection{Examining logs and changes}
 Often it's nice to be able to browse the commit logs on a branch, either
@@ -518,14 +558,17 @@ modifications in a particular commit.
 \subsection{Examining changes}
 One of the most important aspects of revision control is that it allows you to
 follow how files change over time. We have already looked at how to examine
-the development history trough logs and by listing which files have changed.
+the development history through logs and by listing which files have changed.
 We shall now turn our focus on how to examine how the actual files change
 between revisions. For this purpose git provides a very powerful command:
 \begin{verbatim}
 $ git diff
 \end{verbatim}
 Simply running this command without any arguments prints out the differences
-between your working copy and the last checked in version. This can be
+between your working copy and the last checked in (staged) version. 
+%% Note: git-diff shows difference between index (staging area) and
+%% working copy, not between HEAD (last commit) and working copy.
+This can be
 extremely useful at times. \texttt{git diff} can also show differences between
 arbitrary revisions, branches, tags and so on. To view the differences
 between two branches
@@ -539,11 +582,18 @@ can be useful.  \texttt{git show} is also convenient for retrieving older
 revisions of \emph{files}. Since git only deals with whole revisions, i.e. the
 \emph{state} of the repository at a given time, it's in principle not possible
 to retrieve the revision of a single file. Sometimes however it's convenient
-to be able to reset a single file to an older state.  So for example to view a
+to be able to reset a single file to an older state.  So for example to save a
 particular file 7 revisions back:
 \begin{verbatim}
 $ git show HEAD~7:foobar.c >foobar~7.c
 \end{verbatim}
+%% To reset file to given state (cleaning also 'unmerged file' status)
+%% one can use
+%% \begin{verbatim}
+%% $ git checkout HEAD~7 foobar.c
+%% \end{verbatim}
+%% But perhaps it is too much detail
+
 
 \subsection{Searching a repository}
 Quite often one has a need to search all or some of the files in a source
@@ -567,8 +617,22 @@ Fortunately git comes to our rescue:
 $ git blame file
 \end{verbatim}
 This command prints out the file with every line nicely annotated with who 
-changed it and when. There is another similar command \texttt{git annotate}
-which annotates the file with the commit messages. 
+changed it and when.
+%% git-annotate is alias for git-blame with some backward compatibilty
+%% options set; there was separate git-annotate command, but it lost
+%% against git-blame.
+You can also use
+\begin{verbatim}
+$ git gui blame file
+\end{verbatim}
+for graphical blame.
+
+If you want to find what commit introduced given change, you can use
+so called \emph{pickaxe}\index{pickaxe} search:
+\begin{verbatim}
+$ git log -S'<changed line>' file
+\end{verbatim}
+
 
 \section{Using git for collaboration}
 Revision management goes well beyond just source code management for a group
@@ -595,18 +659,17 @@ That's it! Now you can work happily, and remember to commit every now and then
 so that you always can go back in history if you need to. 
 
 At the point when you are ready to send the manuscript to your collaborators,
-you can either clone your repository in /tmp to obtain a clean copy, or just
-clean out all unnecessary files. Then make an archive of the whole project and
+you can make an archive of the whole project and
 send it by email to your collaborators\footnote{If the file is very big it's
 probably better to provide a (hidden) link to your home page, as many mail
 servers will not accept excessively large files}. 
 \begin{verbatim}
-$ cd /tmp
-$ git clone ~/tex/manus
-$ tar vfcz manus.tgz manus
-$ rm -rf manus
+$ git archive --prefix=manus/ HEAD | gzip > /tmp/manus.tgz
 # mail and attach /tmp/manus.tgz
 \end{verbatim}
+%% Much simpler, isn't it?
+Note that this would not copy history. See description of 
+\texttt{git bundle} later in this chapter.
 
 Now you and your collaborators continue to work the manuscript. After some
 time, and a number of commits, it's time to share your changes with the 
@@ -614,16 +677,21 @@ others. The first step is to identify the commits you want to send. The
 commits can easily be identified by running \texttt{git log}. Suppose you have
 made 3 commits since you last distributed your changes:
 \begin{verbatim}
+$ mkdir patches/
 $ git format-patch -3
 \end{verbatim}
+%% you can use '-o dir' to save patches to directory; this way you are
+%% less likely to send some patches you don't want to send, while
+%% keeping old patches around just in case they need to be resent
 This creates 3 patch files in the current directory, which now can be attached
 and sent to your collaborators using your favourite mailer. Alternatively you
 can use \texttt{git send-email} to do the job.
 \begin{verbatim}
-$ git send-email --subject '[patch] my latest changes' --to foo@bar.org \
---cc raboof@foobar.edu --cc myself@myhost.net *.patch
+$ git send-email --subject '[PATCH] my latest changes' --to foo@bar.org \
+  --cc raboof@foobar.edu --cc myself@myhost.net *.patch
 $ rm *.patch
 \end{verbatim}
+%% --cc myself@myhost.net is not needed if you setup your identity correctly
 \texttt{git send-mail} can also be configured using \texttt{git configure} to
 avoid having to write the long command line every time.
 
@@ -637,9 +705,42 @@ It might be a good idea to create and switch to a temporary branch before
 applying the patches, since this gives you a better possibility to inspect the 
 changes before merging them with your main branch. Obviously, if there is a
 conflict it has to be resolved in the normal manner.
+%% not exactly "normal manner": use 'git am --continue', but git would
+%% tell you this.
+
+%% DRAFT >>>
+Alternatively you can use \texttt{git bundle} for off-line
+transport. This has the advantage of sending whole history, and
+disadvantage of having been harder to review.
+
+To start instead of creating archive you create initial bundle with
+whole history
+\begin{verbatim}
+$ git bundle create manus.bndl master
+$ git tag -f sent-manus master
+# second command marks when we send bundle
+\end{verbatim}
+On the receiving side one would do
+\begin{verbatim}
+$ git bundle verify manus.bndl
+$ git fetch manus.bndl master:from-him/master
+\end{verbatim}
+
+If you want to send changes since last bundle, do
+\begin{verbatim}
+$ git bundle create manus.bndl sent-manus..master
+$ git tag -f sent-manus master
+# second command marks when we send bundle
+\end{verbatim}
+The receiving side is the same as before.
+%% <<< DRAFT
 
 \section{Advanced git}
 \subsection{Configuring git}
+%%
+%% Preferred way to configure git is to _edit_ config files;
+%% git-config is for script (and examples), not for humans
+%%
 Git uses a number of config files, system
 wide, per user and per repository (see the git config man page for more info).
 As a minimum you should set the following options:
@@ -656,17 +757,14 @@ $ git config --global color.branch auto
 $ git config --global color.status auto
 $ git config --global color.diff false
 \end{verbatim}
-In order to save space you can also enable compression
-\begin{verbatim}
-$ git config --global core.compression 1
-$ git config --global core.loosecompression 1
-\end{verbatim}
+%% Compression is enabled by default; what was written would _reduce_
+%% compresion!
 If you want to use some external (graphical) merge tool to resolve conflicts:
 \begin{verbatim}
 $ git config --global merge.tool meld
 \end{verbatim}
 \texttt{meld} is a fantastic merge tool, and I strongly suggest you have a
-look at it.  Other possibilities are kdiff3 and xxdiff.
+look at it.  Other possibilities are \texttt{kdiff3} and \texttt{xxdiff}.
 
 Git has many tunable bells and whistles. Please refer to the git configure
 man page for a more complete listing of configurable options.
@@ -691,6 +789,7 @@ the part you want to retain and remove all the markers.
 After you have resolved the conflict in your favorite editor, save and
 recommit:
 \begin{verbatim}
+$ git add <file>
 $ git commit
 \end{verbatim}
 A more convenient way to handle conflicting merges is to configure
@@ -718,8 +817,8 @@ certain revision, some which we have seen already:
   \item The SHA1 hash of a commit	
 \end{enumerate}
 The two first forms are pretty obvious, but the others need a bit of
-explanation. The symbolic name HEAD will always be a tag which points to the
-latest revision on the current branch. HEAD is mostly useful to specify
+explanation. The symbolic name HEAD will always points to current
+checked out branch.  HEAD is mostly useful to specify
 older revisions relative to it. There are a number of ways to specify
 a relative revision, e.g to specify the parent revision (i.e. one below HEAD)
 \begin{verbatim}
@@ -729,11 +828,12 @@ The general syntax is
 \begin{verbatim}
 git show <HEAD|tag|branch|SHA1>~N
 \end{verbatim}
-There is also another way of specifying relative revisions by using a 
-'\verb ^ '  instead of '\verb ~ '. These are equivalent, \emph{except} in the
-case when more than two branches have been merged simultaneously in a so
-called octopus merge (see \Ref{sec:merge}). For the exact explanation see
-the \texttt{git-rev-parse} man page.
+For more details see the \texttt{git-rev-parse} man page,
+section ``Specifying revisions''.
+%% ~ and ^ are NOT equivalent: HEAD~n means n-th ancestor of HEAD in
+%% direct (first parent) line, HEAD^n means n-th parent of HEAD if
+%% HEAD is merge commit (octopus is merge which has more than
+%% _2_ parents). 
 
 Every commit (every object in fact) is internally identified by a
 cryptography-strength one-way SHA1 hash consisting of 40 hexdigits, which
@@ -833,7 +933,7 @@ $ git stash clear
 When git was conceived, it was based on a very simple scheme for storing
 revisions to files in the repository. Instead of actually figuring out how
 files changed between revisions and just storing the differences, git just
-stored a copy of the whole file! This is obviously quite simple and efficient,
+stored a (compressed) copy of the whole file! This is obviously quite simple and efficient,
 but very wasteful in terms of storage space. It also becomes inefficient as
 the number of files in the repository grows. 
 
@@ -853,6 +953,9 @@ fully optimise your repository run
 \begin{verbatim}
 $ git gc --prune --aggressive
 \end{verbatim}
+Current git tries to packs loose objects and repack, when needed, but
+it would not prune by itself. Pruning should be run on quescient
+repository.
 
 \subsection{Exporting a repository}
 Sometimes you want to package your source, e.g. for an official release, but
@@ -912,6 +1015,15 @@ $ git bisect reset
 \end{verbatim}
 
 \subsection{Undoing commits and resetting}
+%%
+%% There are three ways of correcting: fine tune last commit with
+%% 'git commit --amend', discard last 3 changes using 'git reset
+%% --hard HEAD~3' (this removes history; use reflog if you made
+%% mistake when resetting); this should not be done if you have
+%% published this history, and 'git revert <commit>' which would
+%% revert _changes_ brought by commit, in practice doing cherry-pick
+%% of reverse of given commit.
+%%
 Sometimes we screw up. It's embarrassing. And we don't want anybody to know
 about it. Like committing something we should not have, or even worse,
 misspelling a commit message. Whatever. Or maybe we want to undo a merge or a
@@ -943,11 +1055,13 @@ a commit in this manner you would do the following:
 \begin{verbatim}
 $ git commit file1 file2 
 # uups, let's undo the commit message, and edit file1 and add file3 
-$ git reset --soft HEAD~1  
 $ vim file1 
 $ git add file3
-$ git commit -a -c ORIG_HEAD
+$ git commit --amend file1 file2 file3
 \end{verbatim}
+%% git reset --soft is nowadays almost never used directly.
+%% I would use "git commit -a" instead of "git commit <file>",
+%% or "git add <file>; git commit"
 
 If you really, really want to reset the state of both the repository and your
 working copy you need to do a hard reset. Be warned, a hard reset throws away
@@ -964,6 +1078,8 @@ reset back to the reflog HEAD:
 \begin{verbatim}
 $ git reset --hard HEAD@{1}
 \end{verbatim}
+%% You can use "git reset --hard ORIG_HEAD" too
+
 
 \subsection{Working with multiple remotes}
 \label{sec:remotes}
