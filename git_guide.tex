@@ -31,7 +31,7 @@
 {\sf N-9037 University of Tromsø, Norway}
 }
 \years{2007}
-\abstract{Rev 0.5:\\{\tt git clone http://git.jonas.iki.fi/git\_guides.git}\\
+\abstract{Rev 0.5.5:\\{\tt git clone http://git.jonas.iki.fi/git\_guides.git}\\
 Corrections and improvements are most welcome via e-mail using the
 {\tt git format-patch} facility.}
 
@@ -48,7 +48,7 @@ What I feel is missing is a manual which explains what the commands are for,
 how the pieces fit together and how to actually work with git on a daily
 basis. This guide has been written with an audience consisting of the typical
 academic programmer in mind, and relies implicitly on a repository setup as
-outlined in the Git to CVS Migration Guide.
+outlined in the ``Git to CVS Migration Guide''.
 
 All git commands have excellent man pages explaining in
 excruciating detail the particular command. As you read through this manual,
@@ -170,7 +170,7 @@ This marks the files to be added to the repository next time you run
 In fact, you can run \texttt{git add} on files already
 under revision control in the repository, to selectively mark them for
 inclusion in the next commit. This is known as \emph{staging} files for a
-commit. We thus have two ways of marking files for a commit, either by
+commit. We thus have a number ways of marking files for a commit, either by
 directly specifying the files to \texttt{git commit} or by first adding them
 with \texttt{git add} and then running \texttt{git commit} without any files. 
 
@@ -262,8 +262,10 @@ operation.  Such a merge is called an octopus merge, see the
 \subsection{Tags}
 Tagging is a way of specifying a symbolic name to a specific revision (state) 
 of the source tree. This makes it much easier to access that particular
-revision later. Tags can be checked out just like branches.
+revision later. 
 
+Tags should not be checked out directly, rather used to create branches
+starting at the specified tag.
 For example, it's a good idea to tag every release of a
 project. Later if someone finds a bug, it's easy to either go back to that
 state or to create a bugfix branch.
@@ -308,9 +310,13 @@ The two basic operations when working with a remote repository are the pull
 and push operations, to retrieve and publish changes, respectively. Still, it's
 good to keep in mind that your own repository is a full-fledged repository,
 even when you are working with a remote repository. The only difference to
-the ``master'' repository is that a symbolic pointer called ``origin'' is set
+the ``master'' repository is that a symbolic pointer called 'origin' is set
 up to point back to where the repository was cloned from\footnote{You can in
 fact set up multiple remote repositories if you like, see \Ref{sec:remotes}}.
+The symbolic name 'origin' is simply a shorthand for the url of the remote
+repository, i.e. if you do \texttt{git clone me@repos.foo.org/proj.git}, then
+'origin' is set to \texttt{me@repos.foo.org/proj.git}.
+
 
 \subsection{Remote branches in git}
 \label{sec:branch}
@@ -323,7 +329,8 @@ in your local copy by prefixing the branch name with '\texttt{origin/}'. Thus,
 the 'master' branch in the remote repository will be named 'origin/master' in
 your local copy.
 These branches are called 'remote
-branches' or 'tracking branches', to distinguish them from \emph{your} local
+branches' or 'remote-tracking branches', 
+to distinguish them from \emph{your} local
 branches. The point of having these branches is that after an update, 
 they will always be in the exact same state as the corresponding branch in the 
 remote repository, i.e. they track the remote repository.
@@ -397,7 +404,7 @@ called myuserid in the repository where we cloned from (i.e. origin)
 $ git push origin mybranch:myuserid
 \end{verbatim}
 %% Wouldn't it be better to configure remotes for push, with push refspec?
-%%
+%% jj: yes, but it's a lot of explaining. Maybe an appendix?
 If you have created tags that you want to make public you need to push them
 explicitly
 \begin{verbatim}
@@ -460,11 +467,13 @@ stay in sync with \emph{your} work.
 %% needed), repeat until push succeeds should follow CVS' update, if
 %% it fails resolve conflicts, although with git you can ensure that
 %% commits are small and do not break.
+%%jj This is the idea :)
 %%
 %% If it is not the case, perhaps describing a common git model where
 %% main developers have private repository and public repository they
 %% push into (and others pull from), and fringe developers use patches
 %% sent by email would be good idea.
+%%jj This could be added explicitly to the adcanced section
 
 \subsection{A word of advice}
 Git might seem a bit overwhelming in the beginning, so here are
@@ -474,17 +483,18 @@ branches (see \Ref{sec:branch} for more info on branches), and one
 local working branch called 'master'. This branch is in the exact state of
 the remote master branch (i.e. 'origin/master' and 'master' are identical). I
 suggest you keep it this way, and create a new working branch for yourself, 
-e.g. 
+e.g.
 \begin{verbatim}
 $ git checkout -b work 
 \end{verbatim}
+which creates branch 'work' and checks it out in one go.
 Now work like you normally do, and every now and then (every morning for
 example) run
 \begin{verbatim}
 $ git fetch origin
-$ gitk origin/master      %% or: gitk ORIG_HEAD..origin/master
+$ gitk origin/master      
 # if you like what you see
-$ git merge origin/master %% or: git pull origin
+$ git pull origin master 
 \end{verbatim}
 %% Using 'git pull origin' generates (if it is not fast-forward case)
 %% commit message with the URL of remote; 'git merge origin/master'
@@ -494,21 +504,17 @@ Every time you have made changes which can be considered complete in some
 sense (you know best), do a commit 
 \begin{verbatim}
 $ git status
+# hmm, what did I actually change?
+$ git diff
+# oh yes...
 $ git add file(s)
 $ git commit 
 \end{verbatim}
 It's much better with many small commits
 than a few big commits as you will see in \Ref{sec:cherry}.
-%% I guess that more common workflow is
-%% \begin{verbatim}
-%% $ git diff
-%% $ git commit -a
-%% \end{verbatim}
-%% as output of git-status is as comment in buffer when editing commit
-%% message, and git-diff provides review of changes.
-%%
-%% Small commits matters also for commit review, and when finding bug
-%% using bisect, or for git-blame analysiss.
+Small commits matters also for commit review, and when finding bugs
+using \texttt{git bisect} (see \Ref{sec:bisect}), or for \texttt{git blame} 
+analysis (see \Ref{sec:blame}).
 
 \section{Examining repositories}
 \label{sec:examine}
@@ -534,11 +540,10 @@ list files and file patterns (one per line) that you want to ignore:
 *.bak
 
 \end{verbatim}
-It's usually a good idea to place this file under revision control too.
-%% Perhaps you should mentione here "man gitignore", and that ordering
-%% of rules matters (important when excluding some files from
-%% ignoring). Also fo note is fact that patterns and names match
-%% basename (file name part) of filename, unless there is '/' in it.
+Have a look at \texttt{man gitignore} for a detailed description of how 
+patterns are interpreted.
+It's usually a good idea to place the \texttt{.gitignore} file under revision 
+control too. 
 
 \subsection{Examining logs and changes}
 Often it's nice to be able to browse the commit logs on a branch, either
@@ -565,9 +570,10 @@ between revisions. For this purpose git provides a very powerful command:
 $ git diff
 \end{verbatim}
 Simply running this command without any arguments prints out the differences
-between your working copy and the last checked in (staged) version. 
-%% Note: git-diff shows difference between index (staging area) and
-%% working copy, not between HEAD (last commit) and working copy.
+between your working copy and the last checked in (staged) 
+version\footnote{A technical detail, which most people safely can ignore:
+git-diff shows difference between the index (staging area) and the working copy,
+not between the HEAD (last commit) and the working copy.}.
 This can be
 extremely useful at times. \texttt{git diff} can also show differences between
 arbitrary revisions, branches, tags and so on. To view the differences
@@ -587,13 +593,10 @@ particular file 7 revisions back:
 \begin{verbatim}
 $ git show HEAD~7:foobar.c >foobar~7.c
 \end{verbatim}
-%% To reset file to given state (cleaning also 'unmerged file' status)
-%% one can use
-%% \begin{verbatim}
-%% $ git checkout HEAD~7 foobar.c
-%% \end{verbatim}
-%% But perhaps it is too much detail
-
+If you want to reset a file to given state, you can directly use
+\begin{verbatim}
+$ git checkout HEAD~7 foobar.c
+\end{verbatim}
 
 \subsection{Searching a repository}
 Quite often one has a need to search all or some of the files in a source
@@ -609,6 +612,7 @@ This will match the regexp for all files in the current revision.
 
 
 \subsection{Who to blame}
+\label{sec:blame}
 We have all been there, someone has messed up your code and you don't know who
 to blame\footnote{This is because in 9 out of 10 cases it's you yourself,
 with a perfect, albeit short, memory.}.
@@ -618,9 +622,6 @@ $ git blame file
 \end{verbatim}
 This command prints out the file with every line nicely annotated with who 
 changed it and when.
-%% git-annotate is alias for git-blame with some backward compatibilty
-%% options set; there was separate git-annotate command, but it lost
-%% against git-blame.
 You can also use
 \begin{verbatim}
 $ git gui blame file
@@ -664,12 +665,15 @@ send it by email to your collaborators\footnote{If the file is very big it's
 probably better to provide a (hidden) link to your home page, as many mail
 servers will not accept excessively large files}. 
 \begin{verbatim}
-$ git archive --prefix=manus/ HEAD | gzip > /tmp/manus.tgz
+$ cd /tmp
+$ git clone ~/tex/manus
+$ tar vfcz manus.tgz manus
+$ rm -rf manus
 # mail and attach /tmp/manus.tgz
 \end{verbatim}
-%% Much simpler, isn't it?
-Note that this would not copy history. See description of 
-\texttt{git bundle} later in this chapter.
+%% I don't like to use git archive here, because it does not export the 
+%% _repository_
+Alternatively you can use \texttt{git bundle} described below.
 
 Now you and your collaborators continue to work the manuscript. After some
 time, and a number of commits, it's time to share your changes with the 
@@ -688,10 +692,9 @@ and sent to your collaborators using your favourite mailer. Alternatively you
 can use \texttt{git send-email} to do the job.
 \begin{verbatim}
 $ git send-email --subject '[PATCH] my latest changes' --to foo@bar.org \
-  --cc raboof@foobar.edu --cc myself@myhost.net *.patch
+  --cc raboof@foobar.edu *.patch
 $ rm *.patch
 \end{verbatim}
-%% --cc myself@myhost.net is not needed if you setup your identity correctly
 \texttt{git send-mail} can also be configured using \texttt{git configure} to
 avoid having to write the long command line every time.
 
@@ -704,23 +707,20 @@ $ rm mailfile(s)
 It might be a good idea to create and switch to a temporary branch before 
 applying the patches, since this gives you a better possibility to inspect the 
 changes before merging them with your main branch. Obviously, if there is a
-conflict it has to be resolved in the normal manner.
-%% not exactly "normal manner": use 'git am --continue', but git would
-%% tell you this.
+conflict it has to be resolved like normal. When the conflict has been
+resolved, you can continue the merge with \texttt{git am --continue}.
 
 %% DRAFT >>>
+\subsubsection{Using bundles}
 Alternatively you can use \texttt{git bundle} for off-line
-transport. This has the advantage of sending whole history, and
-disadvantage of having been harder to review.
-
-To start instead of creating archive you create initial bundle with
-whole history
+transport. 
+Instead of creating an archive, you can create an initial bundle with
 \begin{verbatim}
 $ git bundle create manus.bndl master
 $ git tag -f sent-manus master
 # second command marks when we send bundle
 \end{verbatim}
-On the receiving side one would do
+The receiving side would do
 \begin{verbatim}
 $ git bundle verify manus.bndl
 $ git fetch manus.bndl master:from-him/master
@@ -732,7 +732,7 @@ $ git bundle create manus.bndl sent-manus..master
 $ git tag -f sent-manus master
 # second command marks when we send bundle
 \end{verbatim}
-The receiving side is the same as before.
+The receiving side does the same as before.
 %% <<< DRAFT
 
 \section{Advanced git}
@@ -757,8 +757,9 @@ $ git config --global color.branch auto
 $ git config --global color.status auto
 $ git config --global color.diff false
 \end{verbatim}
-%% Compression is enabled by default; what was written would _reduce_
-%% compresion!
+If you want beautifully colored diffs, you probably need to add the '-R' flag
+to the \texttt{LESS} environment variable, and change 'false' to 'auto'.
+
 If you want to use some external (graphical) merge tool to resolve conflicts:
 \begin{verbatim}
 $ git config --global merge.tool meld
@@ -829,7 +830,7 @@ The general syntax is
 git show <HEAD|tag|branch|SHA1>~N
 \end{verbatim}
 For more details see the \texttt{git-rev-parse} man page,
-section ``Specifying revisions''.
+specifically the section ``Specifying revisions''.
 %% ~ and ^ are NOT equivalent: HEAD~n means n-th ancestor of HEAD in
 %% direct (first parent) line, HEAD^n means n-th parent of HEAD if
 %% HEAD is merge commit (octopus is merge which has more than
@@ -953,9 +954,9 @@ fully optimise your repository run
 \begin{verbatim}
 $ git gc --prune --aggressive
 \end{verbatim}
-Current git tries to packs loose objects and repack, when needed, but
-it would not prune by itself. Pruning should be run on quescient
-repository.
+%Current git tries to packs loose objects and repack, when needed, but
+%it would not prune by itself. Pruning should be run on quescient
+%repository.
 
 \subsection{Exporting a repository}
 Sometimes you want to package your source, e.g. for an official release, but
@@ -978,6 +979,7 @@ Please note the trailing '/' in the prefix, without it you will get a bit of a
 surprise\ldots
 
 \subsection{Finding bugs}
+\label{sec:bisect}
 Everyone doing software development either alone, or in a group have been in
 the situation where a bug is suddenly found, with very little clue when
 it has been introduced, much less where it might be. It can be very tedious to
