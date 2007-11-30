@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{fancyhdr}
 \usepackage{mydoc}
+\usepackage{url}
 \usepackage[pdftex,colorlinks=true,
 				 pdfstartview=FitV,
 				 linkcolor=blue,
@@ -109,7 +110,7 @@ you can instead specify the files to include by explicitly giving the file
 names to \texttt{git add} instead of the current directory ('.')
 
 Running \texttt{git init} in a directory sets up the repository and the
-necessary files in a directory named \texttt{.git/} in the current directory.
+necessary files in a directory named \path{.git/} in the current directory.
 Since everything is contained in the project directory, no special permissions
 or groups are needed. 
 
@@ -121,7 +122,7 @@ To get your own repository, simply run
 \begin{verbatim}
 $ git clone me@myserver:/path/to/myrepo .
 \end{verbatim}
-This creates a directory called \texttt{myrepo}, with a copy of the remote
+This creates a directory called \path{myrepo}, with a copy of the remote
 repository in the current directory.
 
 Git is quite different from CVS in most respects. When you clone a repository
@@ -138,7 +139,7 @@ ever like. It's only when you push to the master that others can see your
 changes.  In fact, your (cloned) repository can act as a master for someone
 else! The division into master and client is really quite blurred and
 artificial in git.  When you clone a repository, the new copy will contain
-administrative information in .git/config about where it was cloned from, and
+administrative information in \path{.git/config} about where it was cloned from, and
 have a slightly modified branch structure (as you will see), but apart from
 this it's identical to its parent. And where we humans can't choose nor
 change who our parents are, git has no problem in changing or removing the
@@ -419,7 +420,7 @@ branch and push the specified branch to it, do
 $ git push origin <branch>:refs/heads/<branch>
 \end{verbatim}
 As a technical side note, the 'refs/heads' syntax refers to the actual
-directory structure in the internal git repository in \texttt{.git/}.
+directory structure in the internal git repository in \path{.git/}.
 Once you have created the branch, you can
 use the same syntax as when operating on local branches. 
 
@@ -531,7 +532,7 @@ files are not under revision control and files staged for a commit (with
 \texttt{git add}) but not committed yet. Often you have a bunch of files that
 should not be under revision control and that you really don't care about,
 e.g.  object files and the like. To avoid having git status always list these
-files you can edit the file \texttt{.gitignore} in the project directory and
+files you can edit the file \path{.gitignore} in the project directory and
 list files and file patterns (one per line) that you want to ignore:
 \begin{verbatim}
 # example .gitignore file
@@ -542,7 +543,7 @@ list files and file patterns (one per line) that you want to ignore:
 \end{verbatim}
 Have a look at \texttt{man gitignore} for a detailed description of how 
 patterns are interpreted.
-It's usually a good idea to place the \texttt{.gitignore} file under revision 
+It's usually a good idea to place the \path{.gitignore} file under revision 
 control too. 
 
 \subsection{Examining logs and changes}
@@ -963,7 +964,7 @@ Sometimes you want to package your source, e.g. for an official release, but
 you certainly don't want to include the whole repository in the package. One
 way to do this is to simply make a copy of the repository, checkout the right
 branch, clean out all
-generated and unnecessary files, delete the .git directory and make a tar
+generated and unnecessary files, delete the \path{.git} directory and make a tar
 file. This process is much simplified using the \texttt{git archive} which
 will create a .tar or .zip file of the wanted revision on the fly
 \begin{verbatim}
