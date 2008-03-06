@@ -53,7 +53,7 @@ outlined in the ``Git to CVS Migration Guide''.
 
 All git commands have excellent man pages explaining in
 excruciating detail the particular command. As you read through this manual,
-it might be a good idea have a quick look at the corresponding manual pages of
+it might be a good idea to have a quick look at the corresponding manual pages of
 the commands, just to give you an idea of more advanced features lurking under
 the surface. For example, get all available information on the
 \texttt{git checkout} command, run
@@ -87,7 +87,7 @@ more CVS-like interface
 \begin{verbatim}
 $ git command args ...
 \end{verbatim}
-In this guide I'll use the second form throughout, mostly beacuse modern
+In this guide I'll use the second form throughout, mostly because modern
 shells like \texttt{zsh} and \texttt{bash} have command line
 completion features which interact very nicely with the \texttt{git} wrapper.
 
@@ -135,13 +135,13 @@ $ scp -r me@myserver:/path/to/myrepo .
 \end{verbatim}
 Within this personal repository you can do \textit{whatever} you like, i.e.
 create branches, delete branches, tags, and of course commit as much as you
-ever like. It's only when you push to the master that others can see your
+like. It's only when you push to the master that others can see your
 changes.  In fact, your (cloned) repository can act as a master for someone
 else! The division into master and client is really quite blurred and
 artificial in git.  When you clone a repository, the new copy will contain
 administrative information in \path{.git/config} about where it was cloned from, and
-have a slightly modified branch structure (as you will see), but apart from
-this it's identical to its parent. And where we humans can't choose nor
+has a slightly modified branch structure (as you will see), but apart from
+that it's identical to its parent. And where we humans can't choose nor
 change who our parents are, git has no problem in changing or removing the
 parent(s).
 
@@ -171,7 +171,7 @@ This marks the files to be added to the repository next time you run
 In fact, you can run \texttt{git add} on files already
 under revision control in the repository, to selectively mark them for
 inclusion in the next commit. This is known as \emph{staging} files for a
-commit. We thus have a number ways of marking files for a commit, either by
+commit. We thus have a number of ways of marking files for a commit, either by
 directly specifying the files to \texttt{git commit} or by first adding them
 with \texttt{git add} and then running \texttt{git commit} without any files. 
 
@@ -248,7 +248,7 @@ branches have changed you will have a conflict which needs to be resolved
 
 Branch names don't have to be simple strings. In fact you can create branches
 with sub-branches exactly like a directory tree. This can be useful if there
-are many developers sharing a master repository. Every developer have have
+are many developers sharing a master repository. Every developer has
 his/her own branch tree, e.g.
 \begin{verbatim}
 $ git branch $USER/work
@@ -306,7 +306,7 @@ previous revision will bring it back (as it should).
 
 \section{Working with remote repositories}
 Even though revision control can be very useful in a one-man universe, it's
-when collaborating with others that git reveals its true power and strength.
+when collaborating with others that git reveals its true power.
 The two basic operations when working with a remote repository are the pull
 and push operations, to retrieve and publish changes, respectively. Still, it's
 good to keep in mind that your own repository is a full-fledged repository,
@@ -325,7 +325,7 @@ When you clone a repository, the repository you cloned will be referred to as
 a remote repository (even if it's on the same machine). The default remote
 repository is called 'origin'. The repository you just cloned has at least one
 branch ('master'), but probably more.
-When you clone repository all the branches in the that repository are renamed 
+When you clone a repository all the branches in that repository are renamed 
 in your local copy by prefixing the branch name with '\texttt{origin/}'. Thus,
 the 'master' branch in the remote repository will be named 'origin/master' in
 your local copy.
